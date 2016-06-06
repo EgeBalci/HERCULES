@@ -34,6 +34,30 @@ Options :
 
 
 
+
+# PAYLOAD OPTIONS
+
+                  __  ____________  ________  ____    ___________
+                 / / / / ____/ __ \/ ____/ / / / /   / ____/ ___/
+                / /_/ / __/ / /_/ / /   / / / / /   / __/  \__ \ 
+               / __  / /___/ _, _/ /___/ /_/ / /___/ /___ ___/ / 
+              /_/ /_/_____/_/ |_|\____/\____/_____/_____//____/  
+                                                   
+
+~PERSSISTENCE                     Installs a persistence module
+
+~DISTRACT                         Executes a fork bomb bat file for distraction   
+
+~PLEASE  "Command"                Asks users comfirmation for higher privilidge operations
+
+~DOS -A "www.targetsite.com"      Starts a denial of service atack
+
+~WIFI-LIST 						            Dumps all wifi history data with passwords
+
+~METERPRETER -A "127.0.0.1:8888"  Creates a reverse https meterpreter connection to metasploit
+
+
+
 # AV AWARENESS
 
 http://NoDistribute.com/result/ZWHKvaAJcCpnOGbgNq
