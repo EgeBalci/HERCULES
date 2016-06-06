@@ -31,3 +31,9 @@ Options :
       --persistence      Enable outo persistence option for continious acces.
 
       --embed="file.exe" Embed the selected payload with selected exe file.
+
+
+
+# AV AWARENESS
+
+http://NoDistribute.com/result/ZWHKvaAJcCpnOGbgNq
