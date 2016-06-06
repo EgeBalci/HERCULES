@@ -1,5 +1,9 @@
 # HERCULES
-HERCULES is a special payload generator that can bypass all antivirus software. 
+HERCULES is a special payload generator that can bypass all antivirus software.
+
+Use it with netcat...
+
+Example : nc -l -p 1234
 
 
 # USAGE
@@ -13,7 +17,7 @@ HERCULES is a special payload generator that can bypass all antivirus software.
                                                    
 
 
-Usage : ./HERCULES "Local Ip" "Local Port" "options"
+Usage : ./HERCULES (LocalIp) (LocalPort) (Options)
 
 
 Options : 
