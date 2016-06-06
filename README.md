@@ -13,7 +13,7 @@ HERCULES is a special payload generator that can bypass all antivirus software.
                                                    
 
 
-Usage : ./HERCULES <Local Ip> <Local Port> <options>
+Usage : ./HERCULES "Local Ip" "Local Port" "options"
 
 
 Options : 
