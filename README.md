@@ -12,16 +12,13 @@ HERCULES is a special payload generator that can bypass all antivirus software.
               /_/ /_/_____/_/ |_|\____/\____/_____/_____//____/  
                                                    
 
-############################ HERCULES REVERSE SHELL ############################
-
-
 
 Usage : ./HERCULES <Local Ip> <Local Port> <options>
 
 
 Options : 
 
-      -p                 Payload to use. ( Windows / Linux / OSX )
+      -p                 Payload to use. ( Windows / Linux )
 
       -a                 The architecture to use. ( x86, x64 )
       
