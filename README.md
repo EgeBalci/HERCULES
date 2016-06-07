@@ -58,7 +58,3 @@ Options :
 
 http://NoDistribute.com/result/ZWHKvaAJcCpnOGbgNq
 
-# NOTE
-
-- Using persistence and keylogger may attract some Anti Virus software... 
-
