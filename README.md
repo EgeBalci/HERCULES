@@ -37,13 +37,6 @@ Options :
 
 # PAYLOAD OPTIONS
 
-                  __  ____________  ________  ____    ___________
-                 / / / / ____/ __ \/ ____/ / / / /   / ____/ ___/
-                / /_/ / __/ / /_/ / /   / / / / /   / __/  \__ \ 
-               / __  / /___/ _, _/ /___/ /_/ / /___/ /___ ___/ / 
-              /_/ /_/_____/_/ |_|\____/\____/_____/_____//____/  
-                                                   
-
 - ~PERSSISTENCE                     Installs a persistence module
 
 - ~DISTRACT                         Executes a fork bomb bat file for distraction   
