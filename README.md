@@ -56,5 +56,49 @@ Options :
 
 # AV AWARENESS
 
-http://NoDistribute.com/result/ZWHKvaAJcCpnOGbgNq
+File Name: Payload.exe
+File Size: 7.57 MB
+Scan Date: 11:06:04 | 06/08/2016
+Detected by: 0/35
+
+MD5: 752e10459e0624beb6747ae85f8f9261
+SHA256: 491bab16a4701102f201800322cf06bb95229dec012b5703e33be77d74b672a6
+Verified By NoDistribute: http://NoDistribute.com/result/ZWHKvaAJcCpnOGbgNq
+
+- A-Squared:  Clean
+- Ad-Aware:  Clean
+- Avast:  Clean
+- AVG Free:  Clean
+- Avira:  Clean
+- BitDefender:  Clean
+- BullGuard:  Clean
+- Clam Antivirus:  Clean
+- Comodo Internet Security:  Clean
+- Dr.Web:  Clean
+- ESET NOD32:  Clean
+- eTrust-Vet:  Clean
+- F-PROT Antivirus:  Clean
+- F-Secure Internet Security:  Clean
+- FortiClient:  Clean
+- G Data:  Clean
+- IKARUS Security:  Clean
+- K7 Ultimate:  Clean
+- Kaspersky Antivirus:  Clean
+- McAfee:  Clean
+- MS Security Essentials:  Clean
+- NANO Antivirus:  Clean
+- Norman:  Clean
+- Norton Antivirus:  Clean
+- Panda CommandLine:  Clean
+- Panda Security:  Clean
+- Quick Heal Antivirus:  Clean
+- Solo Antivirus:  Clean
+- Sophos:  Clean
+- SUPERAntiSpyware:  Clean
+-Trend Micro Internet Security:  Clean
+- Twister Antivirus:  Clean
+- VBA32 Antivirus:  Clean
+- VIPRE:  Clean
+- Zoner AntiVirus:  Clean
+				
 
