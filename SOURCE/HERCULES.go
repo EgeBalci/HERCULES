@@ -277,18 +277,14 @@ Options :
 
 
 
+
 func CheckGolang() {
   if runtime.GOOS == "linux" {
     Result,_ := exec.Command("sh", "-c", "go version").Output()
 
     if !(strings.Contains(string(Result), "version")){
-      exec.Command("sh", "-c", `zenity --info --text="Installing golang...!" --title="Setup!"`).Run()
-      exec.Command("sh", "-c", `apt-get install golang`).Run()
-    }
-
-    if !(strings.Contains(string(Result), "go1.6.1")){
-      exec.Command("sh", "-c", `zenity --error --text="Old golang version detected !" --title="Warning !"`).Run()
-      exec.Command("sh", "-c", `zenity --info --text="Updating golang..." --title="Info !"`).Run()
+      exec.Command("sh", "-c", `zenity --warning --text="Golang is not installed on system !" --title="Warning !"`).Run()
+      exec.Command("sh", "-c", `zenity --info --text="Installing golang...!" --title="Setup!"`).Start()
       exec.Command("sh", "-c", `apt-get install golang`).Run()
     }
 
@@ -300,10 +296,5 @@ func CheckGolang() {
       os.Exit(1)
     }
 
-
-    if !(strings.Contains(string(Result), "go1.6.1")){
-      exec.Command("cmd", "/C", `msg * Old golang version detected !`).Run()
-      os.Exit(1)
-    }
   }
 }
