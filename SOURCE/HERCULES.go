@@ -193,7 +193,7 @@ func GENERATE_PAYLOAD(IP string, PORT string, PAYLOAD string, ARC string, LINKER
 
   if runtime.GOOS == "windows" {
 
-    if LINKER == "static" {
+    if LINKER == "static" || LINKER == "STATIC" {
       LINKER = string("set GOARCH="+ARC+"\ngo build -ldflags \"-H windowsgui\" Payload.go ")
     }else if LINKER == "dynamic" || LINKER == "DYNAMIC" {
       LINKER = string("set GOARCH="+ARC+"\ngo build -ldflags \"-H windowsgui -s\" Payload.go ")
