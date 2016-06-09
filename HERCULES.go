@@ -194,9 +194,9 @@ func GENERATE_PAYLOAD(IP string, PORT string, PAYLOAD string, ARC string, LINKER
   if runtime.GOOS == "windows" {
 
     if LINKER == "static" {
-      LINKER = string("set GOARC="+ARC+"\ngo build -ldflags \"-H windowsgui\" Payload.go ")
+      LINKER = string("set GOARCH="+ARC+"\ngo build -ldflags \"-H windowsgui\" Payload.go ")
     }else if LINKER == "dynamic" || LINKER == "DYNAMIC" {
-      LINKER = string("set GOARC="+ARC+"\ngo build -ldflags \"-H windowsgui -s\" Payload.go ")
+      LINKER = string("set GOARCH="+ARC+"\ngo build -ldflags \"-H windowsgui -s\" Payload.go ")
     }
 
 
@@ -221,9 +221,9 @@ func GENERATE_PAYLOAD(IP string, PORT string, PAYLOAD string, ARC string, LINKER
   }else if runtime.GOOS != "windows" {
 
     if LINKER == "static" {
-      LINKER = string("export GOOS=windows && export GOARC="+ARC+" && go build -ldflags \"-H windowsgui\" Payload.go && export GOOS=linux && export GOARC=amd64")
+      LINKER = string("export GOOS=windows && export GOARCH="+ARC+" && go build -ldflags \"-H windowsgui\" Payload.go && export GOOS=linux && export GOARCH=amd64")
     }else if LINKER == "dynamic" || LINKER == "DYNAMIC" {
-      LINKER = string("export GOOS=windows && export GOARC="+ARC+" && go build -ldflags \"-H windowsgui -s\" Payload.go && export GOOS=linux && export GOARC=amd64")
+      LINKER = string("export GOOS=windows && export GOARCH="+ARC+" && go build -ldflags \"-H windowsgui -s\" Payload.go && export GOOS=linux && export GOARCH=amd64")
     }
 
     exec.Command("sh", "-c", LINKER).Run()
