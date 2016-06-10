@@ -52,7 +52,7 @@ Options :
 # NOTE !
 
 - Dynamic linking makes payload size smaller !
-- Using persistence and keylogger may atract anti virus softwares !
+- Using persistence may atract anti virus softwares !
 - Please don't disribute any samples to Virus Total !
 
 # AV AWARENESS
