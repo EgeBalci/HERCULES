@@ -19,6 +19,9 @@ Example : nc -l -p 1234
 
 Usage : ./HERCULES (Ip) (Port) (Options)
 
+Example : ./HERCULES 192.168.2.10 4444 -p windows -a x86 -l dynamic
+
+Example Video : https://youtu.be/vYnaZpWxwxY
 
 Options : 
 
