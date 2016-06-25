@@ -106,3 +106,6 @@ Verified By NoDistribute: http://NoDistribute.com/result/ZWHKvaAJcCpnOGbgNq
 - Zoner AntiVirus:  Clean
 				
 
+# DONATIONS
+
+- http://patreon.com/user?u=3556027
