@@ -1,4 +1,4 @@
-# HERCULES [![License](https://img.shields.io/badge/license-GPLv2-red.svg)](https://raw.githubusercontent.com/EgeBalci/HERCULES/master/LICENSE)
+# HERCULES [![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://raw.githubusercontent.com/EgeBalci/HERCULES/master/LICENSE)
 HERCULES is a special payload generator that can bypass all antivirus software.
 
 Use it with netcat...
