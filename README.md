@@ -1,4 +1,4 @@
-# HERCULES [![Donate](http://patreon.com/user?u=3556027)]
+# HERCULES [!(http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)]
 HERCULES is a special payload generator that can bypass all antivirus software.
 
 Use it with netcat...
