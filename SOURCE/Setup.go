@@ -115,8 +115,8 @@ func CheckValid()  (bool, string){
     return false, "[!] ERROR : upx is not installed"
   }
 
-  OutGO, _ := exec.Command("sh", "-c", "go").Output()
-  if (!strings.Contains(string(OutGO), "command")) {
+  OutGO, _ := exec.Command("sh", "-c", "go version").Output()
+  if (!strings.Contains(string(OutGO), "version")) {
     return false, "[!] ERROR : golang is not installed"
   }
 
