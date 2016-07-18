@@ -75,11 +75,13 @@ func main() {
 
     BoldYellow.Println("[*] Cloning EGESPLOIT Library...")
     exec.Command("sh", "-c", "git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
+    exec.Command("sh", "-c", "cp EGESPLOIT /usr/lib/go-1.6/src/").Run()
     exec.Command("sh", "-c", "mv EGESPLOIT /usr/lib/go/src/").Run()
 
     BoldYellow.Println("[*] Cloning color Library...")
     exec.Command("sh", "-c", "git clone https://github.com/fatih/color.git").Run()
-    exec.Command("sh", "-c", "mv color /usr/lib/go/src/").Run()
+    exec.Command("sh", "-c", "cp color /usr/lib/go-1.6/src/").Run()
+    exec.Command("sh", "-c", "mv color /usr/lib/go/src/").Run()// /usr/lib/go-1.6/src/
 
 
     Stat, Err := CheckValid()
@@ -105,8 +107,18 @@ func CheckValid()  (bool, string){
     return false, "[!] ERROR : EGESPLOIT library is not installed"
   }
 
+  OutESP2, _ := exec.Command("sh", "-c", "cd /usr/lib/go-1.6/src/ && ls").Output()
+  if (!strings.Contains(string(OutESP2), "EGESPLOIT")) {
+    return false, "[!] ERROR : EGESPLOIT library is not installed"
+  }
+
   OutCL, _ := exec.Command("sh", "-c", "cd /usr/lib/go/src/ && ls").Output()
   if (!strings.Contains(string(OutCL), "color")) {
+    return false, "[!] ERROR : color library is not installed"
+  }
+
+  OutCL2, _ := exec.Command("sh", "-c", "cd /usr/lib/go-1.6/src/ && ls").Output()
+  if (!strings.Contains(string(OutCL2), "color")) {
     return false, "[!] ERROR : color library is not installed"
   }
 
