@@ -21,6 +21,10 @@ Installattıon on Kali Linux
 		chmod 777 Setup && ./Setup
 
 
+#USAGE
+
+		./HERCULES
+
 
 #SPECIAL FUNCTIONS
 
