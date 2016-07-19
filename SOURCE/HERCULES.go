@@ -116,9 +116,11 @@ func main() {
       }
     }else{
       BoldGreen.Println(Result)
+      time.Sleep(3*time.Second)
+      main()
     }
   }else{
-
+    main()
   }
 
 
