@@ -5,7 +5,21 @@ HERCULES is a customizable payload generator that can bypass all antivirus softw
 
 		VERSION 3.0.0
 		
-		
+	
+#INSTALLATTION
+
+Installattıon on Kali Linux
+
+1) Install dependencies
+		apt-get update
+		apt-get upgrade
+		apt-get install golang
+		apt-get install upx
+2) Run the setup
+
+		chmod 777 Setup && ./Setup
+
+
 
 #SPECIAL FUNCTIONS
 
