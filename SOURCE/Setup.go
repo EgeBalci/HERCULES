@@ -3,7 +3,7 @@ package main
 import "os/exec"
 import "strings"
 import "runtime"
-import "color"
+import "github.com/fatih/color"
 import "os"
 
 
@@ -41,6 +41,15 @@ func main() {
 
 
 
+  Priv := CheckSUDO()
+
+  if Priv == false {
+  	BoldRed.Println("[!] ERROR : Setup needs root privileges")
+  	os.Exit(1)
+  }
+
+
+
 
 
 
@@ -53,35 +62,30 @@ func main() {
     OsVersion, _ := exec.Command("sh", "-c", "uname -a").Output()
     BoldYellow.Println("[*] OS Detected : " + string(OsVersion))
     BoldYellow.Println("[*] Installing golang...")
-    Go := exec.Command("sh", "-c", "apt-get install golang")
+    Go := exec.Command("sh", "-c", "sudo apt-get install golang")
     Go.Stdout = os.Stdout
     Go.Stdin = os.Stdin
     Go.Run()
     BoldYellow.Println("[*] Installing upx...")
-    UPX := exec.Command("sh", "-c", "apt-get install upx")
+    UPX := exec.Command("sh", "-c", "sudo apt-get install upx")
     UPX.Stdout = os.Stdout
     UPX.Stdin = os.Stdin
     UPX.Run()
     BoldYellow.Println("[*] Installing openssl...")
-    OSSL := exec.Command("sh", "-c", "apt-get install openssl")
+    OSSL := exec.Command("sh", "-c", "sudo apt-get install openssl")
     OSSL.Stdout = os.Stdout
     OSSL.Stdin = os.Stdin
     OSSL.Run()
     BoldYellow.Println("[*] Installing git...")
-    Git := exec.Command("sh", "-c", "apt-get install git")
+    Git := exec.Command("sh", "-c", "sudo apt-get install git")
     Git.Stdout = os.Stdout
     Git.Stdin = os.Stdin
     Git.Run()
 
     BoldYellow.Println("[*] Cloning EGESPLOIT Library...")
-    exec.Command("sh", "-c", "git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
-    exec.Command("sh", "-c", "cp EGESPLOIT /usr/lib/go-1.6/src/").Run()
-    exec.Command("sh", "-c", "mv EGESPLOIT /usr/lib/go/src/").Run()
-
-    BoldYellow.Println("[*] Cloning color Library...")
-    exec.Command("sh", "-c", "git clone https://github.com/fatih/color.git").Run()
-    exec.Command("sh", "-c", "cp color /usr/lib/go-1.6/src/").Run()
-    exec.Command("sh", "-c", "mv color /usr/lib/go/src/").Run()// /usr/lib/go-1.6/src/
+    exec.Command("sh", "-c", "sudo git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
+    exec.Command("sh", "-c", "sudo cp EGESPLOIT /usr/lib/go-1.6/src/").Run()
+    exec.Command("sh", "-c", "sudo mv EGESPLOIT /usr/lib/go/src/").Run()
 
 
     Stat, Err := CheckValid()
@@ -112,16 +116,6 @@ func CheckValid()  (bool, string){
     return false, "[!] ERROR : EGESPLOIT library is not installed"
   }
 
-  OutCL, _ := exec.Command("sh", "-c", "cd /usr/lib/go/src/ && ls").Output()
-  if (!strings.Contains(string(OutCL), "color")) {
-    return false, "[!] ERROR : color library is not installed"
-  }
-
-  OutCL2, _ := exec.Command("sh", "-c", "cd /usr/lib/go-1.6/src/ && ls").Output()
-  if (!strings.Contains(string(OutCL2), "color")) {
-    return false, "[!] ERROR : color library is not installed"
-  }
-
   OutUPX, _ := exec.Command("sh", "-c", "upx").Output()
   if (!strings.Contains(string(OutUPX), "Copyright")) {
     return false, "[!] ERROR : upx is not installed"
@@ -134,4 +128,14 @@ func CheckValid()  (bool, string){
 
   return true, ""
 
+}
+
+func CheckSUDO() (bool){
+	User, _ := exec.Command("sh", "-c", "whoami").Output()
+	if string(User) == "root" {
+		return true
+	}else {
+		return false
+	}
+	
 }
