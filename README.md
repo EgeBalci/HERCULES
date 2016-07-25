@@ -12,10 +12,7 @@ SUPPORTED PLATFORMS:
 
 - Kali Linux
 - Ubuntu
-- Arch Linux
-- BlackArch Linux
-- Manjero
-- Parrot OS
+
 
 		sudo chmod 777 Setup && sudo ./Setup
 
