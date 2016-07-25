@@ -106,7 +106,7 @@ func main() {
         BoldYellow.Print("\nDo you want to upgrade ? (y/n) : ")
         fmt.Scan(&Ask)
         if Ask == "y" || Ask == "Y" {
-          Update := exec.Command("sh", "-c", "chmod 777 UPDATE && ./UPDATE")
+          Update := exec.Command("sh", "-c", "chmod 777 UPDATE && sudo ./UPDATE")
           Update.Stdout = os.Stdout
           Update.Start()
           os.Exit(1)
