@@ -24,7 +24,7 @@ SUPPORTED PLATFORMS:
 		HERCULES
 
 
-#SPECIAL FUNCTIONS ?
+#SPECIAL FUNCTIONS
 
 
 		Persistence : Persistence function adds the running binary to windows start-up registry (CurrentVersion/Run) for continious access.
@@ -37,7 +37,7 @@ SUPPORTED PLATFORMS:
 		
 #WHAT IS "AV EVASION SCORE" ?
 
-		AV Evasion Score is a scale(1/10) for determining the effectiveness of the paylaods anti virus bypassing capabilities, 1 represends low possibility to pass AV softwares.
+		AV Evasion Score is a scale(1/10) for determining the effectiveness of the payloads anti virus bypassing capabilities, 1 represents low possibility to pass AV softwares.
 		
 		Using special functions and packing the payloads with upx decreases the AV Evasion Score.
 		
