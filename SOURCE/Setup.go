@@ -87,6 +87,12 @@ func main() {
     exec.Command("sh", "-c", "sudo cp EGESPLOIT /usr/lib/go-1.6/src/").Run()
     exec.Command("sh", "-c", "sudo mv EGESPLOIT /usr/lib/go/src/").Run()
 
+    BoldYellow.Println("[*] Moving binaries...")
+    exec.Command("sh", "-c", "sudo chmod 777 *").Run()
+    exec.Command("sh", "-c", "sudo mv HERCULES /bin/").Run()
+    exec.Command("sh", "-c", "sudo mv HERCULES_x64 /bin/").Run()
+    exec.Command("sh", "-c", "sudo mv Update /bin/").Run()
+
 
     Stat, Err := CheckValid()
 
@@ -126,13 +132,18 @@ func CheckValid()  (bool, string){
     return false, "[!] ERROR : golang is not installed"
   }
 
+  OutBin, _ := exec.Command("sh", "-c", "cd /bin/ && ls").Output()
+  if (!strings.Contains(string(OutBin), "HERCULES")) || (!strings.Contains(string(OutBin), "HERCULES_x64")) || (!strings.Contains(string(OutBin), "Update")) {
+    return false, "[!] ERROR : Unable to move HERCULES binaries "
+  }
+
   return true, ""
 
 }
 
 func CheckSUDO() (bool){
 	User, _ := exec.Command("sh", "-c", "whoami").Output()
-	if string(User) == "root" {
+	if strings.Contains(string(User), "root") {
 		return true
 	}else {
 		return false
