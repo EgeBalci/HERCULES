@@ -24,7 +24,7 @@ SUPPORTED PLATFORMS:
 		HERCULES
 
 
-#SPECIAL FUNCTIONS
+#SPECIAL FUNCTIONS ?
 
 
 		Persistence : Persistence function adds the running binary to windows start-up registry (CurrentVersion/Run) for continious access.
@@ -35,8 +35,9 @@ SUPPORTED PLATFORMS:
 
 		UPX (Ultimate Packer for Executables) is a free and open source executable packer supporting a number of file formats from different operating systems. UPX simply takes the binary file and compresses it, packed binary unpack(decompress) itself at runtime to memory.
 		
-#WHAT IS "AV EVASION SCORE"
+#WHAT IS "AV EVASION SCORE" ?
 
 		AV Evasion Score is a scale(1/10) for determining the effectiveness of the paylaods anti virus bypassing capabilities, 1 represends low possibility to pass AV softwares.
 		
 		Using special functions and packing the payloads with upx decreases the AV Evasion Score.
+		
