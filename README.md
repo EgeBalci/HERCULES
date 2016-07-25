@@ -12,18 +12,18 @@ Installattıon on Kali Linux
 
 1) Install dependencies
 
-		apt-get update
-		apt-get upgrade
-		apt-get install golang
-		apt-get install upx
+		sudo apt-get update
+		sudo apt-get upgrade
+		sudo apt-get install golang
+		sudo apt-get install upx
 2) Run the setup
 
-		chmod 777 Setup && ./Setup
+		sudo chmod 777 Setup && sudo ./Setup
 
 
 #USAGE
 
-		./HERCULES
+		sudo ./HERCULES
 
 
 #SPECIAL FUNCTIONS
