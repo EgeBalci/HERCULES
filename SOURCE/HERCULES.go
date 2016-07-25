@@ -144,7 +144,7 @@ func CheckSetup()  (bool){
 }
 
 
-func ChecVersion()  (string){
+func ChecVersion()  (string){//https://raw.githubusercontent.com/EgeBalci/HERCULES/master/SOURCE/HERCULES.go
 
   Response, Error := http.Get("https://raw.githubusercontent.com/EgeBalci/HERCULES/master/SOURCE/HERCULES.go")
   if Error != nil {
@@ -180,7 +180,7 @@ func PrintBanner()  {
 func PrintCredit()  {
   Green := color.New(color.FgGreen)
   BoldGreen := Green.Add(color.Bold)
-  color.Green("\n+ -- --=[      HERCULES FRAMEWORK           ]")
+  color.Green("\n+ -- --=[        HERCULES  FRAMEWORK        ]")
   color.Green("+ -- --=[         Version: "+VERSION+"            ]")
   BoldGreen.Println("+ -- --=[            Ege Balcı              ]")
 }
