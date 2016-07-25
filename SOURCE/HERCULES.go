@@ -128,7 +128,7 @@ func main() {
 
 func CheckSetup()  (bool){
 
-  DirList, _ := exec.Command("sh", "-c", "locate EGESPLOIT").Output()
+  DirList, _ := exec.Command("sh", "-c", "cd /usr/lib/go-1.6/src && ls").Output()
   GoVer, _ := exec.Command("sh", "-c", "go version").Output()
   UPX, _ := exec.Command("sh", "-c", "upx").Output()
   if len(DirList) < 10 {
