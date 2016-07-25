@@ -10,12 +10,12 @@ HERCULES is a customizable payload generator that can bypass all antivirus softw
 
 SUPPORTED PLATFORMS:
 
-	Kali Linux
-	Ubuntu
-	Arch Linux
-	BlackArch Linux
-	Manjero
-	Parrot OS
+- Kali Linux
+- Ubuntu
+- Arch Linux
+- BlackArch Linux
+- Manjero
+- Parrot OS
 
 		sudo chmod 777 Setup && sudo ./Setup
 
