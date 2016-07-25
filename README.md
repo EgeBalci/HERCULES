@@ -12,6 +12,8 @@ SUPPORTED PLATFORMS:
 
 - Kali Rolling
 - Ubuntu
+- Arch Linux
+- Manjaro
 
 
 		sudo chmod 777 Setup && sudo ./Setup
