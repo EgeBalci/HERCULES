@@ -59,39 +59,79 @@ func main() {
   BoldYellow.Println("[*] Detecting OS...")
 
   if runtime.GOOS == "linux" {
+
+
     OsVersion, _ := exec.Command("sh", "-c", "uname -a").Output()
     BoldYellow.Println("[*] OS Detected : " + string(OsVersion))
-    BoldYellow.Println("[*] Installing golang...")
-    Go := exec.Command("sh", "-c", "sudo apt-get install golang")
-    Go.Stdout = os.Stdout
-    Go.Stdin = os.Stdin
-    Go.Run()
-    BoldYellow.Println("[*] Installing upx...")
-    UPX := exec.Command("sh", "-c", "sudo apt-get install upx")
-    UPX.Stdout = os.Stdout
-    UPX.Stdin = os.Stdin
-    UPX.Run()
-    BoldYellow.Println("[*] Installing openssl...")
-    OSSL := exec.Command("sh", "-c", "sudo apt-get install openssl")
-    OSSL.Stdout = os.Stdout
-    OSSL.Stdin = os.Stdin
-    OSSL.Run()
-    BoldYellow.Println("[*] Installing git...")
-    Git := exec.Command("sh", "-c", "sudo apt-get install git")
-    Git.Stdout = os.Stdout
-    Git.Stdin = os.Stdin
-    Git.Run()
 
-    BoldYellow.Println("[*] Cloning EGESPLOIT Library...")
-    exec.Command("sh", "-c", "sudo git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
-    exec.Command("sh", "-c", "sudo cp EGESPLOIT /usr/lib/go-1.6/src/").Run()
-    exec.Command("sh", "-c", "sudo mv EGESPLOIT /usr/lib/go/src/").Run()
+    if strings.Contains(string(OsVersion), "Ubuntu") || strings.Contains(string(OsVersion), "kali") {
+    	BoldYellow.Println("[*] Installing golang...")
+    	Go := exec.Command("sh", "-c", "sudo apt-get install golang")
+    	Go.Stdout = os.Stdout
+    	Go.Stdin = os.Stdin
+    	Go.Run()
+    	BoldYellow.Println("[*] Installing upx...")
+    	UPX := exec.Command("sh", "-c", "sudo apt-get install upx")
+    	UPX.Stdout = os.Stdout
+    	UPX.Stdin = os.Stdin
+    	UPX.Run()
+    	BoldYellow.Println("[*] Installing openssl...")
+    	OSSL := exec.Command("sh", "-c", "sudo apt-get install openssl")
+    	OSSL.Stdout = os.Stdout
+    	OSSL.Stdin = os.Stdin
+    	OSSL.Run()
+    	BoldYellow.Println("[*] Installing git...")
+    	Git := exec.Command("sh", "-c", "sudo apt-get install git")
+    	Git.Stdout = os.Stdout
+    	Git.Stdin = os.Stdin
+    	Git.Run()
 
-    BoldYellow.Println("[*] Moving binaries...")
-    exec.Command("sh", "-c", "sudo chmod 777 *").Run()
-    exec.Command("sh", "-c", "sudo mv HERCULES /bin/").Run()
-    exec.Command("sh", "-c", "sudo mv HERCULES_x64 /bin/").Run()
-    exec.Command("sh", "-c", "sudo mv Update /bin/").Run()
+    	BoldYellow.Println("[*] Cloning EGESPLOIT Library...")
+    	exec.Command("sh", "-c", "sudo git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
+    	exec.Command("sh", "-c", "sudo cp EGESPLOIT /usr/lib/go-1.6/src/").Run()
+    	exec.Command("sh", "-c", "sudo mv EGESPLOIT /usr/lib/go/src/").Run()
+
+    	BoldYellow.Println("[*] Moving binaries...")
+    	exec.Command("sh", "-c", "sudo chmod 777 *").Run()
+    	exec.Command("sh", "-c", "sudo mv HERCULES /bin/").Run()
+    	exec.Command("sh", "-c", "sudo mv HERCULES_x64 /bin/").Run()
+    	exec.Command("sh", "-c", "sudo mv Update /bin/").Run()
+    }else if strings.Contains(string(OsVersion), "ARCH") || strings.Contains(string(OsVersion), "MANJARO") {
+    	//pacman -S package_name1
+    	BoldYellow.Println("[*] Installing golang...")
+    	Go := exec.Command("sh", "-c", "pacman -S go")
+    	Go.Stdout = os.Stdout
+    	Go.Stdin = os.Stdin
+    	Go.Run()
+    	BoldYellow.Println("[*] Installing upx...")
+    	UPX := exec.Command("sh", "-c", "pacman -S upx")
+    	UPX.Stdout = os.Stdout
+    	UPX.Stdin = os.Stdin
+    	UPX.Run()
+    	BoldYellow.Println("[*] Installing openssl...")
+    	OSSL := exec.Command("sh", "-c", "pacman -S openssl")
+    	OSSL.Stdout = os.Stdout
+    	OSSL.Stdin = os.Stdin
+    	OSSL.Run()
+    	BoldYellow.Println("[*] Installing git...")
+    	Git := exec.Command("sh", "-c", "pacman -S git")
+    	Git.Stdout = os.Stdout
+    	Git.Stdin = os.Stdin
+    	Git.Run()
+
+    	BoldYellow.Println("[*] Cloning EGESPLOIT Library...")
+    	exec.Command("sh", "-c", "sudo git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
+    	exec.Command("sh", "-c", "sudo cp EGESPLOIT /usr/lib/go-1.6/src/").Run()
+    	exec.Command("sh", "-c", "sudo mv EGESPLOIT /usr/lib/go/src/").Run()
+
+    	BoldYellow.Println("[*] Moving binaries...")
+    	exec.Command("sh", "-c", "sudo chmod 777 *").Run()
+    	exec.Command("sh", "-c", "sudo mv HERCULES /bin/").Run()
+    	exec.Command("sh", "-c", "sudo mv HERCULES_x64 /bin/").Run()
+    	exec.Command("sh", "-c", "sudo mv Update /bin/").Run()
+    }else{
+    	BoldRed.Println("[!] ERROR : HERCULES+ only supports linux distributions")
+    }
 
 
     Stat, Err := CheckValid()
