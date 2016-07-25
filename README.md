@@ -10,7 +10,7 @@ HERCULES is a customizable payload generator that can bypass all antivirus softw
 
 SUPPORTED PLATFORMS:
 
-- Kali Linux
+- Kali Rolling
 - Ubuntu
 
 
