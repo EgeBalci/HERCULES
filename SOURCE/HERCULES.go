@@ -369,7 +369,7 @@ func FinalView()  {
 
   PayloadName += ".exe"
 
-  BoldWhite.Println("\n[*] Payload saved at : /root/" + PayloadName + "\n\n")
+  BoldWhite.Println("\n[*] Payload saved at : /$HOME/" + PayloadName + "\n\n")
 
 
 }
@@ -415,7 +415,7 @@ func CompilePayload()  {
       os.Exit(1)
     }
     File.Close()
-    MovePayload := string("mv " + FileName_No_Suffix + ".exe /root/")
+    MovePayload := string("mv " + FileName_No_Suffix + ".exe $HOME")
     exec.Command("sh", "-c", MovePayload).Run()
 
 
@@ -461,7 +461,7 @@ func CompilePayload()  {
       os.Exit(1)
     }
     File.Close()
-    MovePayload := string("mv " + FileName_No_Suffix + ".exe /root/")
+    MovePayload := string("mv " + FileName_No_Suffix + ".exe $HOME")
     exec.Command("sh", "-c", MovePayload).Run()
 
   }else if Payload.Type == 4 {
@@ -485,7 +485,7 @@ func CompilePayload()  {
       os.Exit(1)
     }
     File.Close()
-    MovePayload := string("mv " + FileName_No_Suffix + ".exe /root/")
+    MovePayload := string("mv " + FileName_No_Suffix + ".exe $HOME")
     exec.Command("sh", "-c", MovePayload).Run()
 
   }
