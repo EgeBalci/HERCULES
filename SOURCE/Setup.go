@@ -34,7 +34,7 @@ func main() {
   color.Red(" ░  ░  ░   ░  ░   ░     ░ ░         ░         ░  ░   ░  ░      ░  ")
   color.Red("                        ░                                         ")
 
-  color.Green("\n+ -- --=[      HERCULES FRAMEWORK           ]")
+  color.Green("\n+ -- --=[        HERCULES  FRAMEWORK        ]")
   BoldGreen.Println("+ -- --=[            Ege Balcı              ]")
 
 
@@ -153,12 +153,8 @@ func main() {
 
 func CheckValid()  (bool, string){
   OutESP, _ := exec.Command("sh", "-c", "cd /usr/lib/go/src/ && ls").Output()
-  if (!strings.Contains(string(OutESP), "EGESPLOIT")) {
-    return false, "[!] ERROR : EGESPLOIT library is not installed"
-  }
-
   OutESP2, _ := exec.Command("sh", "-c", "cd /usr/lib/go-1.6/src/ && ls").Output()
-  if (!strings.Contains(string(OutESP2), "EGESPLOIT")) {
+  if (!strings.Contains(string(OutESP), "EGESPLOIT")) && (!strings.Contains(string(OutESP2), "EGESPLOIT")) {
     return false, "[!] ERROR : EGESPLOIT library is not installed"
   }
 
