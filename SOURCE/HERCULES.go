@@ -129,11 +129,17 @@ func main() {
 func CheckSetup()  (bool){
 
   DirList, _ := exec.Command("sh", "-c", "cd /usr/lib/go-1.6/src && ls").Output()
+  DirList2, _ := exec.Command("sh", "-c", "cd /usr/lib/go/src && ls").Output()
   GoVer, _ := exec.Command("sh", "-c", "go version").Output()
   UPX, _ := exec.Command("sh", "-c", "upx").Output()
-  if len(DirList) < 10 {
+  if len(string(DirList)) < 10 {
     return false
   }
+
+  if (!(strings.Contains(string(DirList), "EGESPLOIT"))) && (!(strings.Contains(string(DirList2), "EGESPLOIT"))) {
+    return false
+  }
+
   if !(strings.Contains(string(GoVer), "version")) {
     return false
   }
