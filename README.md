@@ -42,5 +42,11 @@ SUPPORTED PLATFORMS:
 		Using special functions and packing the payloads with upx decreases the AV Evasion Score.
 		
 		
+		
+#COMING SOON...
+
+- Binary infector
+- Bypass AV functon
+- Payload encryption
 
 		
