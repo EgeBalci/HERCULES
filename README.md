@@ -16,7 +16,8 @@ SUPPORTED PLATFORMS:
 - Manjaro
 
 
-		sudo chmod 777 Setup && sudo ./Setup
+		sudo chmod 777 Setup
+		sudo ./Setup
 
 
 #USAGE
