@@ -48,5 +48,6 @@ SUPPORTED PLATFORMS:
 - Binary infector
 - Bypass AV functon
 - Payload encryption
+- OSX support
 
 		
