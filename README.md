@@ -14,6 +14,7 @@ SUPPORTED PLATFORMS:
 - Ubuntu
 - Arch Linux
 - Manjaro
+- Black Arch
 
 
 
