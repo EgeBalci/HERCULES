@@ -68,21 +68,25 @@ func main() {
     	BoldYellow.Println("[*] Installing golang...")
     	Go := exec.Command("sh", "-c", "sudo apt-get install golang")
     	Go.Stdout = os.Stdout
+      Go.Stderr = os.Stderr
     	Go.Stdin = os.Stdin
     	Go.Run()
     	BoldYellow.Println("[*] Installing upx...")
     	UPX := exec.Command("sh", "-c", "sudo apt-get install upx")
     	UPX.Stdout = os.Stdout
+      UPX.Stderr = os.Stderr
     	UPX.Stdin = os.Stdin
     	UPX.Run()
     	BoldYellow.Println("[*] Installing openssl...")
     	OSSL := exec.Command("sh", "-c", "sudo apt-get install openssl")
     	OSSL.Stdout = os.Stdout
+      OSSL.Stderr = os.Stderr
     	OSSL.Stdin = os.Stdin
     	OSSL.Run()
     	BoldYellow.Println("[*] Installing git...")
     	Git := exec.Command("sh", "-c", "sudo apt-get install git")
     	Git.Stdout = os.Stdout
+      Git.Stderr = os.Stderr
     	Git.Stdin = os.Stdin
     	Git.Run()
 
@@ -101,21 +105,25 @@ func main() {
     	BoldYellow.Println("[*] Installing golang...")
     	Go := exec.Command("sh", "-c", "pacman -S go")
     	Go.Stdout = os.Stdout
+      Go.Stderr = os.Stderr
     	Go.Stdin = os.Stdin
     	Go.Run()
     	BoldYellow.Println("[*] Installing upx...")
     	UPX := exec.Command("sh", "-c", "pacman -S upx")
     	UPX.Stdout = os.Stdout
+      UPX.Stderr = os.Stderr
     	UPX.Stdin = os.Stdin
     	UPX.Run()
     	BoldYellow.Println("[*] Installing openssl...")
     	OSSL := exec.Command("sh", "-c", "pacman -S openssl")
     	OSSL.Stdout = os.Stdout
+      OSSL.Stderr = os.Stderr
     	OSSL.Stdin = os.Stdin
     	OSSL.Run()
     	BoldYellow.Println("[*] Installing git...")
     	Git := exec.Command("sh", "-c", "pacman -S git")
     	Git.Stdout = os.Stdout
+      Git.Stderr = os.Stderr
     	Git.Stdin = os.Stdin
     	Git.Run()
 
