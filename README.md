@@ -1,6 +1,6 @@
 # HERCULES [![License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://raw.githubusercontent.com/EgeBalci/HERCULES/master/LICENSE)  [![Donate](https://img.shields.io/badge/Donate-Patreon-green.svg)](http://patreon.com/user?u=3556027) [![Support](https://img.shields.io/badge/Support-Mail-red.svg)](https://github.com/EgeBalci/HERCULES/wiki) [![Golang](https://img.shields.io/badge/Go-1.6-blue.svg)](https://golang.org)
 
-HERCULES is a customizable payload generator that can bypass all antivirus software.
+HERCULES is a customizable payload generator that can bypass antivirus software.
 
 
 		VERSION 3.0.0
