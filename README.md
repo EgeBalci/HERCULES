@@ -10,6 +10,37 @@ HERCULES is a customizable payload generator that can bypass antivirus software.
 
 SUPPORTED PLATFORMS:
 
+<table>
+    <tr>
+        <th>Operative system</th>
+        <th> Version </th>
+    </tr>
+    <tr>
+        <td>Ubuntu</td>
+        <td> 16.04  / 15.10 </td>
+    </tr>
+    <tr>
+        <td>Kali linux</td>
+        <td> Rolling / Sana</td>
+    </tr>
+    <tr>
+        <td>Manjaro</td>
+        <td>* </td>
+    </tr>
+    <tr>
+        <td>Arch Linux</td>
+        <td>* </td>
+    </tr>
+    <tr>
+        <td>Black Arch</td>
+        <td>* </td>
+    </tr>
+    <tr>
+        <td>Parrot OS</td>
+        <td>3.1 </td>
+    </tr>
+</table>
+
 - Kali Rolling
 - Ubuntu
 - Arch Linux
