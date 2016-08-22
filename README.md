@@ -6,7 +6,7 @@ HERCULES is a customizable payload generator that can bypass antivirus software.
 		VERSION 3.0.4
 		
 	
-![](http://i.imgur.com/LuF9JQs.png)
+![](http://i.imgur.com/SMU8WU4.png)
 	
 	
 #INSTALLATTION
