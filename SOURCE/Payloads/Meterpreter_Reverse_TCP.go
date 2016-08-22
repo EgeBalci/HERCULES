@@ -4,7 +4,7 @@ package main
 import "encoding/binary"
 import "syscall"
 import "unsafe"
-import "EGESPLOIT/RSE"
+//import "EGESPLOIT/RSE"
 
 const MEM_COMMIT  = 0x1000
 const MEM_RESERVE = 0x2000
