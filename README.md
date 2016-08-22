@@ -41,13 +41,6 @@ SUPPORTED PLATFORMS:
     </tr>
 </table>
 
-- Kali Rolling
-- Ubuntu
-- Arch Linux
-- Manjaro
-- Black Arch
-
-
 
 		sudo chmod 777 Setup
 		sudo ./Setup
