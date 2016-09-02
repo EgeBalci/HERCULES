@@ -57,7 +57,6 @@ func main() {
 
 
   BoldYellow.Println("[*] Detecting OS...")
-  BoldYellow.Println(runtime.GOOS)
   if runtime.GOOS == "linux" {
 
 
