@@ -131,10 +131,11 @@ func CheckSetup()  (bool){
 
   DirList, _ := exec.Command("sh", "-c", "cd /usr/lib/go-1.6/src && ls").Output()
   DirList2, _ := exec.Command("sh", "-c", "cd /usr/lib/go/src && ls").Output()
+  DirList3, _ := exec.Command("sh", "-c", "cd /usr/lib/golang/src && ls").Output()
   GoVer, _ := exec.Command("sh", "-c", "go version").Output()
   UPX, _ := exec.Command("sh", "-c", "upx").Output()
 
-  if (!(strings.Contains(string(DirList), "EGESPLOIT"))) && (!(strings.Contains(string(DirList2), "EGESPLOIT"))) {
+  if (!(strings.Contains(string(DirList), "EGESPLOIT"))) && (!(strings.Contains(string(DirList2), "EGESPLOIT"))) && (!(strings.Contains(string(DirList3), "EGESPLOIT"))) {
     return false
   }
 
@@ -838,7 +839,7 @@ func PreparePayload(No int)  {
     PrintBanner()
     PrintPayloads()
 
-    Warning.Println("\n[!] ERROR : Invalid choise\n")
+    Warning.Println("\n[!] ERROR : Invalid choice\n")
 
     fmt.Print("\n\n[*] Select : ")
     fmt.Scan(&NO)
