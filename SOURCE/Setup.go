@@ -57,7 +57,7 @@ func main() {
 
 
   BoldYellow.Println("[*] Detecting OS...")
-
+  BoldYellow.Println(runtime.GOOS)
   if runtime.GOOS == "linux" {
 
 
@@ -137,6 +137,43 @@ func main() {
     	exec.Command("sh", "-c", "sudo mv HERCULES /bin/").Run()
     	exec.Command("sh", "-c", "sudo mv HERCULES_x64 /bin/").Run()
     	exec.Command("sh", "-c", "sudo mv Update /bin/").Run()
+    }else if strings.Contains(string(OsVersion), "fc22") || strings.Contains(string(OsVersion), "fc23") || strings.Contains(string(OsVersion), "fc24") {
+    	//The default package manager for Fedora 22+ is dnf, not yum... Syntax is:
+    	//sudo dnf -y install package_name
+    	BoldYellow.Println("[*] Installing golang...")
+    	Go := exec.Command("sh", "-c", "sudo dnf -y install golang")
+    	Go.Stdout = os.Stdout
+      Go.Stderr = os.Stderr
+    	Go.Stdin = os.Stdin
+    	Go.Run()
+    	BoldYellow.Println("[*] Installing upx...")
+    	UPX := exec.Command("sh", "-c", "sudo dnf -y install upx")
+    	UPX.Stdout = os.Stdout
+      UPX.Stderr = os.Stderr
+    	UPX.Stdin = os.Stdin
+    	UPX.Run()
+    	BoldYellow.Println("[*] Installing openssl...")
+    	OSSL := exec.Command("sh", "-c", "sudo dnf -y install openssl")
+    	OSSL.Stdout = os.Stdout
+      OSSL.Stderr = os.Stderr
+    	OSSL.Stdin = os.Stdin
+    	OSSL.Run()
+    	BoldYellow.Println("[*] Installing git...")
+    	Git := exec.Command("sh", "-c", "sudo dnf -y install git")
+    	Git.Stdout = os.Stdout
+      Git.Stderr = os.Stderr
+    	Git.Stdin = os.Stdin
+    	Git.Run()
+
+    	BoldYellow.Println("[*] Cloning EGESPLOIT Library...")
+    	exec.Command("sh", "-c", "sudo git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
+    	exec.Command("sh", "-c", "sudo mv EGESPLOIT /usr/lib/golang/src/").Run()
+
+    	BoldYellow.Println("[*] Moving binaries...")
+    	exec.Command("sh", "-c", "sudo chmod 777 *").Run()
+    	exec.Command("sh", "-c", "sudo mv HERCULES /bin/").Run()
+    	exec.Command("sh", "-c", "sudo mv HERCULES_x64 /bin/").Run()
+    	exec.Command("sh", "-c", "sudo mv Update /bin/").Run()
     }else{
     	BoldRed.Println("[!] ERROR : HERCULES+ only supports linux distributions")
     }
@@ -162,7 +199,8 @@ func main() {
 func CheckValid()  (bool, string){
   OutESP, _ := exec.Command("sh", "-c", "cd /usr/lib/go/src/ && ls").Output()
   OutESP2, _ := exec.Command("sh", "-c", "cd /usr/lib/go-1.6/src/ && ls").Output()
-  if (!strings.Contains(string(OutESP), "EGESPLOIT")) && (!strings.Contains(string(OutESP2), "EGESPLOIT")) {
+  OutESP3, _ := exec.Command("sh", "-c", "cd /usr/lib/golang/src/ && ls").Output()
+  if (!strings.Contains(string(OutESP), "EGESPLOIT")) && (!strings.Contains(string(OutESP2), "EGESPLOIT")) && (!strings.Contains(string(OutESP3), "EGESPLOIT")) {
     return false, "[!] ERROR : EGESPLOIT library is not installed"
   }
 
