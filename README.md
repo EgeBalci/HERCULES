@@ -45,8 +45,7 @@ SUPPORTED PLATFORMS:
 </table>
 
 
-		sudo chmod 777 Setup
-		sudo ./Setup
+		go run Setup.go
 
 
 #USAGE
