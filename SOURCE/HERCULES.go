@@ -129,12 +129,11 @@ func main() {
 
 func CheckSetup()  (bool){
 
-  DirList, _ := exec.Command("sh", "-c", "cd /usr/lib/go-1.6/src && ls").Output()
-  DirList2, _ := exec.Command("sh", "-c", "cd /usr/lib/go/src && ls").Output()
+  DirList, _ := exec.Command("sh", "-c", "ls").Output()
   GoVer, _ := exec.Command("sh", "-c", "go version").Output()
   UPX, _ := exec.Command("sh", "-c", "upx").Output()
 
-  if (!(strings.Contains(string(DirList), "EGESPLOIT"))) && (!(strings.Contains(string(DirList2), "EGESPLOIT"))) {
+  if (!(strings.Contains(string(DirList), "EGESPLOIT"))) {
     return false
   }
 
@@ -410,7 +409,7 @@ func CompilePayload()  {
 
     File.WriteString(SourceCode)
 
-    BuildCommand_Args := string(`export GOOS=windows && export GOARCH=386 && export GOPATH=HERCULES_PATH && go build -ldflags "-H windowsgui -s -w" ` + Payload.FileName)
+    BuildCommand_Args := string(`export GOOS=windows && export GOARCH=386 && export GOPATH=$HERCULES_PATH && go build -ldflags "-H windowsgui -s -w" ` + Payload.FileName)
     BoldYellow.Println("\n[*] Compiling payload...")
     BoldYellow.Println("\n[*] " + BuildCommand_Args)
     BuildCommand := exec.Command("sh", "-c", BuildCommand_Args)
@@ -463,7 +462,7 @@ func CompilePayload()  {
 
     File.WriteString(SourceCode)
 
-    BuildCommand_Args := string(`export GOOS=windows && export GOARCH=386 && export GOPATH=HERCULES_PATH && go build -ldflags "-H windowsgui -s -w" ` + Payload.FileName)
+    BuildCommand_Args := string(`export GOOS=windows && export GOARCH=386 && export GOPATH=$HERCULES_PATH && go build -ldflags "-H windowsgui -s -w" ` + Payload.FileName)
     BoldYellow.Println("\n[*] Compiling payload...")
     BoldYellow.Println("\n[*] " + BuildCommand_Args)
     BuildCommand := exec.Command("sh", "-c", BuildCommand_Args)
@@ -490,7 +489,7 @@ func CompilePayload()  {
 
     File.WriteString(SourceCode)
 
-    BuildCommand_Args := string(`export GOOS=windows && export GOARCH=386 && export GOPATH=HERCULES_PATH && go build -ldflags "-H windowsgui -s -w" ` + Payload.FileName)
+    BuildCommand_Args := string(`export GOOS=windows && export GOARCH=386 && export GOPATH=$HERCULES_PATH && go build -ldflags "-H windowsgui -s -w" ` + Payload.FileName)
     BoldYellow.Println("\n[*] Compiling payload...")
     BoldYellow.Println("\n[*] " + BuildCommand_Args)
     BuildCommand := exec.Command("sh", "-c", BuildCommand_Args)

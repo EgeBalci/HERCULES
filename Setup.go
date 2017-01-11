@@ -43,16 +43,6 @@ func main() {
 
   Priv := CheckSUDO()
 
-  if Priv == false {
-  	BoldRed.Println("[!] ERROR : Setup needs root privileges")
-  	os.Exit(1)
-  }
-
-
-
-
-
-
   BoldWhite.Println("\n\n[*] STARTING HERCULES SETUP \n")
 
 
@@ -63,16 +53,20 @@ func main() {
 
     OsVersion, _ := exec.Command("sh", "-c", "uname -a").Output()
     BoldYellow.Println("[*] OS Detected : " + string(OsVersion))
-
     BoldYellow.Println("[*] Setting HERCULES path...")
 
-    Path, _ := exec.Command("sh", "-c", "pwd").Output()
-    var HERCULES_PATH string = string("echo HERCULES_PATH="+string(Path)+" >> ~/.bashrc")
-    exec.Command("sh", "-c", HERCULES_PATH).Run()
-    exec.Command("sh", "-c", "cd SOURCE".Run()
 
+    Path, _ := exec.Command("sh", "-c", "pwd").Output()
+	BoldYellow.Println("[*] HERCULES_PATH="+string(Path))
+	_Path := strings.Trim(string(Path), "\n")
+    var HERCULES_PATH string = string("echo 'export HERCULES_PATH="+_Path+"' >> ~/.bashrc")
+    exec.Command("sh", "-c", HERCULES_PATH).Run()
+    exec.Command("sh", "-c", string("export HERCULES_PATH="+string(Path))).Run()
     if strings.Contains(string(OsVersion), "Ubuntu") || strings.Contains(string(OsVersion), "kali") {
     	BoldYellow.Println("[*] Installing golang...")
+    	 if Priv == false {
+  			BoldRed.Println("[!] ERROR : Setup needs root privileges")
+  		}
     	Go := exec.Command("sh", "-c", "sudo apt-get install golang")
     	Go.Stdout = os.Stdout
       	Go.Stderr = os.Stderr
@@ -92,15 +86,24 @@ func main() {
     	Git.Run()
 
     	BoldYellow.Println("[*] Cloning EGESPLOIT Library...")
-      	exec.Command("sh", "-c", "git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
+      	exec.Command("sh", "-c", "cd SOURCE && git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
+      	exec.Command("sh", "-c", "export GOPATH=$HERCULES_PATH").Run()
+      	BoldYellow.Println("[*] Cloning color Library...")
       	exec.Command("sh", "-c", "go get github.com/fatih/color").Run()
     	
+      	exec.Command("sh", "-c", "cd SOURCE && go build HERCULES.go").Run()
+
     	BoldYellow.Println("[*] Createing shoutcut...")
     	exec.Command("sh", "-c", "sudo cp HERCULES /bin/").Run()
+    	exec.Command("sh", "-c", "sudo chmod 777 /bin/HERCULES").Run()
 
     }else if strings.Contains(string(OsVersion), "ARCH") || strings.Contains(string(OsVersion), "MANJARO") {
     	//pacman -S package_name1
     	BoldYellow.Println("[*] Installing golang...")
+    	BoldYellow.Println("[*] Installing golang...")
+    	 if Priv == false {
+  			BoldRed.Println("[!] ERROR : Setup needs root privileges")
+  		}
     	Go := exec.Command("sh", "-c", "pacman -S go")
     	Go.Stdout = os.Stdout
       Go.Stderr = os.Stderr
@@ -120,11 +123,16 @@ func main() {
     	Git.Run()
 
     	BoldYellow.Println("[*] Cloning EGESPLOIT Library...")
-    	exec.Command("sh", "-c", "git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
+    	exec.Command("sh", "-c", "cd SOURCE && git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
+    	exec.Command("sh", "-c", "export GOPATH=$HERCULES_PATH").Run()
+    	BoldYellow.Println("[*] Cloning color Library...")
     	exec.Command("sh", "-c", "go get github.com/fatih/color").Run()
+
+		exec.Command("sh", "-c", "cd SOURCE && go build HERCULES.go").Run()
 
     	BoldYellow.Println("[*] Createing shoutcut...")
     	exec.Command("sh", "-c", "sudo cp HERCULES /bin/").Run()
+    	exec.Command("sh", "-c", "sudo chmod 777 /bin/HERCULES").Run()
 
     }else{
     	BoldRed.Println("[!] ERROR : HERCULES does not support this OS")
@@ -141,9 +149,9 @@ func main() {
     }
 
 
-  }else if runtime.GOOS != "linux" {
-    BoldRed.Println("[!] ERROR : HERCULES only supports linux distributions")
-  }
+  	}else if runtime.GOOS != "linux" {
+    	BoldRed.Println("[!] ERROR : HERCULES only supports linux distributions")
+  	}
 
 }
 
