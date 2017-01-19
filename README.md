@@ -69,7 +69,12 @@ SUPPORTED PLATFORMS:
 		AV Evasion Score is a scale(1/10) for determining the effectiveness of the payloads anti virus bypassing capabilities, 1 represents low possibility to pass AV softwares.
 		
 		Using special functions and packing the payloads with upx decreases the AV Evasion Score.
-		
+
+![](http://i.imgur.com/8L1wmjo.png)
+
+![](https://blockchain.info/qr?data=14n1bJmCRNpLKAJVJ55jStH5VueFk6G1n4&size=200)
+
+Bitcoin: 14n1bJmCRNpLKAJVJ55jStH5VueFk6G1n4&size
 		
 		
 #COMING SOON...
