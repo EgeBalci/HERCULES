@@ -72,9 +72,9 @@ SUPPORTED PLATFORMS:
 
 ![](http://i.imgur.com/8L1wmjo.png)
 
-   ![](https://blockchain.info/qr?data=14n1bJmCRNpLKAJVJ55jStH5VueFk6G1n4&size=200)
+   ![](http://i.imgur.com/N2bhpR9.jpg)
 
-Bitcoin: 14n1bJmCRNpLKAJVJ55jStH5VueFk6G1n4&size
+Bitcoin: 16GvMV7eZH22p4rLQuu8h2gbgSLYr11KBM
 		
 		
 #COMING SOON...
