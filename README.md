@@ -70,7 +70,12 @@ WARNING: Don't change the location of the HERCULES folder.
 		AV Evasion Score is a scale(1/10) for determining the effectiveness of the payloads anti virus bypassing capabilities, 1 represents low possibility to pass AV softwares.
 		
 		Using special functions and packing the payloads with upx decreases the AV Evasion Score.
-		
+
+![](http://i.imgur.com/8L1wmjo.png)
+
+   ![](http://i.imgur.com/N2bhpR9.jpg)
+
+Bitcoin: 16GvMV7eZH22p4rLQuu8h2gbgSLYr11KBM
 		
 		
 #COMING SOON...
