@@ -44,9 +44,10 @@ SUPPORTED PLATFORMS:
     </tr>
 </table>
 
-
+        go get github.com/fatih/color
 		go run Setup.go
 
+WARNING: Don't change the location of the HERCULES folder.
 
 #USAGE
 

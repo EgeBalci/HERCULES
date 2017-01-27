@@ -146,6 +146,8 @@ func main() {
       BoldRed.Println(Err)
     }else{
       BoldGreen.Println("\n\n[+] Setup completed successfully")
+      exec.Command("sh", "-c", "gnome-terminal").Run()
+      exec.Command("sh", "-c", "exit").Run()
     }
 
 
