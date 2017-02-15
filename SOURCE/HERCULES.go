@@ -129,7 +129,7 @@ func main() {
 
 func CheckSetup()  (bool){
 
-  DirList, _ := exec.Command("sh", "-c", "ls").Output()
+  DirList, _ := exec.Command("sh", "-c", "cd $HERCULES_PATH/src && ls").Output()
   GoVer, _ := exec.Command("sh", "-c", "go version").Output()
   UPX, _ := exec.Command("sh", "-c", "upx").Output()
 
