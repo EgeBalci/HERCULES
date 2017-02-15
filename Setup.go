@@ -86,7 +86,7 @@ func main() {
     	Git.Run()
 
     	BoldYellow.Println("[*] Cloning EGESPLOIT Library...")
-      	exec.Command("sh", "-c", "cd src/EGESPLOIT && git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
+      	exec.Command("sh", "-c", "cd src && git clone https://github.com/EgeBalci/EGESPLOIT.git").Run()
       	exec.Command("sh", "-c", "export GOPATH=$HERCULES_PATH").Run()
       	BoldYellow.Println("[*] Cloning color Library...")
       	exec.Command("sh", "-c", "go get github.com/fatih/color").Run()
