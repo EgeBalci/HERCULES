@@ -9,7 +9,7 @@ HERCULES is a customizable payload generator that can bypass antivirus software.
 ![](http://i.imgur.com/SMU8WU4.png)
 	
 	
-#INSTALLATTION
+#INSTALLATION
 
 SUPPORTED PLATFORMS:
 
@@ -57,7 +57,7 @@ WARNING: Don't change the location of the HERCULES folder.
 #SPECIAL FUNCTIONS
 
 
-		Persistence : Persistence function adds the running binary to windows start-up registry (CurrentVersion/Run) for continious access.
+		Persistence : Persistence function adds the running binary to windows start-up registry (CurrentVersion/Run) for continuous access.
 		
 		Migration : This function triggers a loop that tries to migrate to a remote process until it is successfully migrated. 
 
