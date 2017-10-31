@@ -78,11 +78,5 @@ WARNING: Don't change the location of the HERCULES folder.
 Bitcoin: 16GvMV7eZH22p4rLQuu8h2gbgSLYr11KBM
 		
 		
-#COMING SOON...
-
-- Binary infector
-- Bypass AV functon
-- AES payload encryption
-- OSX support
 
 		
